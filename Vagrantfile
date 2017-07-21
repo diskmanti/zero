@@ -25,7 +25,10 @@ Vagrant.configure("2") do |config|
     end
     ansy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     ansy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    ansy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
     ansy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    ansy.vm.provision :shell, inline: "cp /vagrant/files/license /etc/tower/license"
+    ansy.vm.provision :shell, path:   "files/hostwithmost.pl"
     ansy.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
@@ -41,7 +44,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "centos0" do |centy|
     centy.vm.box = "centos/7"
     centy.vm.hostname = "centos0"
-    centy.vm.autostart = false
+    #centy.vm.autostart = false
     #centy.vm.network :"private_network", ip: "192.168.33.10" 
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
@@ -60,7 +63,6 @@ Vagrant.configure("2") do |config|
   config.vm.define "centos1" do |centy|
     centy.vm.box = "centos/7"
     centy.vm.hostname = "centos1"
-    centy.vm.autostart = false
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
