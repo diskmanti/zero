@@ -12,24 +12,40 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  #config.vm.box = "ansible/tower"
 
-  ## Ron Dev 
+  ## Ansible Tower
 
-  config.vm.define "ansi0" do |ansy|
+  config.vm.define "ansible230" do |ansy|
     ansy.vm.box = "ansible/tower"
-    ansy.vm.hostname = "ansi0"
+    #ansy.vm.hostname = "ansi0"
+    ansy.vm.hostname = "ansible230"
     #ansy.vm.network :private_network, :auto_network => true
+    ansy.vm.provider :virtualbox do |vb|
+      vb.customize ['modifyvm', :id, '--memory', 3064]
+    end
+    ansy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+    ansy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    ansy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    ansy.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+      fi
+    SHELL
   end
 
+  ## Ansible clients
+
   config.vm.define "centos0" do |centy|
-    #centy.vm.box = "centos/7"
-    centy.vm.box = "puppetlabs/centos-7.2-64-nocm"
+    centy.vm.box = "centos/7"
     centy.vm.hostname = "centos0"
+    centy.vm.autostart = false
     #centy.vm.network :"private_network", ip: "192.168.33.10" 
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    centy.vm.provision :shell, inline: "cp /vagrant/id_rsa* /root/.ssh"
+    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
     centy.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
@@ -38,17 +54,25 @@ Vagrant.configure("2") do |config|
         echo 'Adding EPEL repo'
         rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
       fi
-      SHELL
+    SHELL
   end
 
   config.vm.define "centos1" do |centy|
-    #centy.vm.box = "centos/7"
-    centy.vm.box = "puppetlabs/centos-7.2-64-nocm"
+    centy.vm.box = "centos/7"
     centy.vm.hostname = "centos1"
+    centy.vm.autostart = false
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    centy.vm.provision :shell, inline: "cp /vagrant/id_rsa* /root/.ssh"
+    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    centy.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+      fi
+    SHELL
   end
 
 
