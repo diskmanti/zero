@@ -77,6 +77,14 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
+  config.vm.define "ubuntu0" do |ubu|
+    ubu.vm.box = "ubuntu/trusty64"
+    ubu.vm.hostname = "ubuntu0"
+    ubu.vm.network :private_network, :auto_network => true
+    ubu.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+    ubu.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    ubu.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+  end   
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
