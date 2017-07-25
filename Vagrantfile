@@ -34,9 +34,13 @@ Vagrant.configure("2") do |config|
         echo 'EPEL repo present'
       else
         echo 'Adding EPEL repo'
-        rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
       fi
+      yum update -y --skip-broken
     SHELL
+    #if Vagrant.has_plugin? 'vagrant-hostmanager'
+    #  system "vagrant hostmanager"
+    #end
   end
 
   ## Ansible clients
@@ -49,31 +53,73 @@ Vagrant.configure("2") do |config|
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
     centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
     centy.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
       else
         echo 'Adding EPEL repo'
-        rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
       fi
+      yum -y update
     SHELL
   end
 
   config.vm.define "centos1" do |centy|
-    centy.vm.box = "centos/7"
+    centy.vm.box = "centos/6"
     centy.vm.hostname = "centos1"
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
     centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
     centy.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
       else
         echo 'Adding EPEL repo'
-        rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
       fi
+      yum -y update
+    SHELL
+  end
+
+  config.vm.define "centos2" do |centy|
+    centy.vm.box = "centos/6"
+    centy.vm.hostname = "centos2"
+    centy.vm.network :private_network, :auto_network => true
+    centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
+    centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    centy.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+      fi
+      yum -y update
+    SHELL
+  end
+   
+  config.vm.define "centos3" do |centy|
+    centy.vm.box = "centos/6"
+    centy.vm.hostname = "centos3"
+    centy.vm.network :private_network, :auto_network => true
+    centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
+    centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    centy.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+      fi
+      yum -y update
     SHELL
   end
 
