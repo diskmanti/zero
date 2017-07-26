@@ -45,17 +45,17 @@ Vagrant.configure("2") do |config|
 
   ## Ansible clients
 
-  config.vm.define "centos0" do |centy|
-    centy.vm.box = "centos/7"
-    centy.vm.hostname = "centos0"
-    #centy.vm.autostart = false
-    #centy.vm.network :"private_network", ip: "192.168.33.10" 
-    centy.vm.network :private_network, :auto_network => true
-    centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
-    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-    centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    centy.vm.provision :shell, inline: <<-SHELL 
+  config.vm.define "centos7s0" do |centy7|
+    centy7.vm.box = "centos/7"
+    centy7.vm.hostname = "centos7s0"
+    #centy7.vm.autostart = false
+    #centy7.vm.network :"private_network", ip: "192.168.33.10" 
+    centy7.vm.network :private_network, :auto_network => true
+    centy7.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+    centy7.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    centy7.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
+    centy7.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    centy7.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
       else
@@ -66,9 +66,9 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  config.vm.define "centos1" do |centy|
+  config.vm.define "centos6s0" do |centy|
     centy.vm.box = "centos/6"
-    centy.vm.hostname = "centos1"
+    centy.vm.hostname = "centos6s0"
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
@@ -86,9 +86,9 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  config.vm.define "centos2" do |centy|
+  config.vm.define "centos6s1" do |centy|
     centy.vm.box = "centos/6"
-    centy.vm.hostname = "centos2"
+    centy.vm.hostname = "centos6s1"
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
@@ -106,9 +106,9 @@ Vagrant.configure("2") do |config|
     SHELL
   end
    
-  config.vm.define "centos3" do |centy|
+  config.vm.define "centos6s2" do |centy|
     centy.vm.box = "centos/6"
-    centy.vm.hostname = "centos3"
+    centy.vm.hostname = "centos6s2"
     centy.vm.network :private_network, :auto_network => true
     centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
@@ -126,9 +126,9 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  config.vm.define "ubuntu0" do |ubu|
+  config.vm.define "ubuntu14s0" do |ubu|
     ubu.vm.box = "ubuntu/trusty64"
-    ubu.vm.hostname = "ubuntu0"
+    ubu.vm.hostname = "ubuntu14s0"
     ubu.vm.network :private_network, :auto_network => true
     ubu.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     ubu.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"

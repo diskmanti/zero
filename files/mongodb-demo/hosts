@@ -2,26 +2,26 @@
 
 # the mongo servers need a mongod_port variable set, and they must not conflict.
 [mongo_servers]
-centos1 mongod_port=2700
-centos2 mongod_port=2701
-centos3 mongod_port=2702
+centos6s0 mongod_port=2700
+centos6s1 mongod_port=2701
+centos6s2 mongod_port=2702
 
 #The list of servers where replication should happen, by default include all servers
 [replication_servers]
-centos3
-centos1
-centos2
+centos6s0
+centos6s1
+centos6s2
 
 #The list of mongodb configuration servers, make sure it is 1 or 3
 [mongoc_servers]
-centos1
-centos2
-centos3
+centos6s0
+centos6s1
+centos6s2
 
 
 #The list of servers where mongos servers would run. 
 [mongos_servers]
-centos1
-centos2
+centos6s0
+centos6s1
 
 
