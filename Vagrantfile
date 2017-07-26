@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
         echo 'Adding EPEL repo'
         rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
       fi
-      yum update -y --skip-broken
+      yum -y update
     SHELL
     #if Vagrant.has_plugin? 'vagrant-hostmanager'
     #  system "vagrant hostmanager"
@@ -70,6 +70,7 @@ Vagrant.configure("2") do |config|
     centy.vm.box = "centos/6"
     centy.vm.hostname = "centos1"
     centy.vm.network :private_network, :auto_network => true
+    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
@@ -89,6 +90,7 @@ Vagrant.configure("2") do |config|
     centy.vm.box = "centos/6"
     centy.vm.hostname = "centos2"
     centy.vm.network :private_network, :auto_network => true
+    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
@@ -108,6 +110,7 @@ Vagrant.configure("2") do |config|
     centy.vm.box = "centos/6"
     centy.vm.hostname = "centos3"
     centy.vm.network :private_network, :auto_network => true
+    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
