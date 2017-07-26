@@ -64,17 +64,18 @@ Vagrant.configure("2") do |config|
       fi
       yum -y update
     SHELL
+    #centy7.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
   end
 
   config.vm.define "centos6s0" do |centy|
     centy.vm.box = "centos/6"
     centy.vm.hostname = "centos6s0"
     centy.vm.network :private_network, :auto_network => true
-    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
     centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
@@ -84,17 +85,18 @@ Vagrant.configure("2") do |config|
       fi
       yum -y update
     SHELL
+    centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
   end
 
   config.vm.define "centos6s1" do |centy|
     centy.vm.box = "centos/6"
     centy.vm.hostname = "centos6s1"
     centy.vm.network :private_network, :auto_network => true
-    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
     centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
@@ -104,17 +106,18 @@ Vagrant.configure("2") do |config|
       fi
       yum -y update
     SHELL
+    centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
   end
    
   config.vm.define "centos6s2" do |centy|
     centy.vm.box = "centos/6"
     centy.vm.hostname = "centos6s2"
     centy.vm.network :private_network, :auto_network => true
-    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
     centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
     centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
     centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
     centy.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
@@ -124,6 +127,8 @@ Vagrant.configure("2") do |config|
       fi
       yum -y update
     SHELL
+    #centy.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
+    centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
   end
 
   config.vm.define "ubuntu14s0" do |ubu|
