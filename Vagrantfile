@@ -5,31 +5,31 @@
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
+
 Vagrant.configure("2") do |config|
+
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
-
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
 
-  ## Ansible Tower
+  ##########  Ansible Tower 2.3.0  ##########   
 
-  config.vm.define "ansible230" do |ansy|
-    ansy.vm.box = "ansible/tower"
-    #ansy.vm.hostname = "ansi0"
-    ansy.vm.hostname = "ansible230"
-    #ansy.vm.network :private_network, :auto_network => true
-    ansy.vm.provider :virtualbox do |vb|
+  config.vm.define "ansible230" do |node|
+    node.vm.box = "ansible/tower"
+    node.vm.hostname = "ansible230"
+    node.vm.provider :virtualbox do |vb|
       vb.customize ['modifyvm', :id, '--memory', 3064]
     end
-    ansy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    ansy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
-    ansy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-    ansy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    ansy.vm.provision :shell, inline: "cp /vagrant/files/license /etc/tower/license"
-    ansy.vm.provision :shell, path:   "files/hostwithmost.pl"
-    ansy.vm.provision :shell, inline: <<-SHELL 
+    #node.vm.network :private_network, :auto_network => true
+    node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+    node.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    node.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
+    node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    node.vm.provision :shell, inline: "cp /vagrant/files/license /etc/tower/license"
+    node.vm.provision :shell, path:   "files/hostwithmost.pl"
+    node.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
       else
@@ -43,102 +43,125 @@ Vagrant.configure("2") do |config|
     #end
   end
 
-  ## Ansible clients
+  ##########  CentOS 7 VM's  ##########   
 
-  config.vm.define "centos7s0" do |centy7|
-    centy7.vm.box = "centos/7"
-    centy7.vm.hostname = "centos7s0"
-    #centy7.vm.autostart = false
-    #centy7.vm.network :"private_network", ip: "192.168.33.10" 
-    centy7.vm.network :private_network, :auto_network => true
-    centy7.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    centy7.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
-    centy7.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-    centy7.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    centy7.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      fi
-      yum -y update
-    SHELL
-    #centy7.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
+  centos7vms = [
+    {
+      :hostname => "centos7s0",
+      :box      => "centos/7",
+      :cpu      => 2,
+      :ram      => 1024,
+    },
+  ]
+
+  centos7vms.each do |machine|
+    config.vm.define machine[:hostname] do |node|
+      node.vm.box = machine[:box]
+      node.vm.hostname = machine[:hostname]
+      #node.vm.autostart = false
+      #node.vm.network :"private_network", ip: "192.168.33.10" 
+      node.vm.provider "virtualbox" do |vb|
+        vb.customize ["modifyvm", :id, "--memory", machine[:ram]]
+      end
+      node.vm.network :private_network, :auto_network => true
+      node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+      node.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+      node.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
+      node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+      node.vm.provision :shell, inline: <<-SHELL 
+        if rpm --quiet -q epel-release; then
+          echo 'EPEL repo present'
+        else
+          echo 'Adding EPEL repo'
+          rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        fi
+        yum -y update
+      SHELL
+      #node.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
+    end
   end
 
-  config.vm.define "centos6s0" do |centy|
-    centy.vm.box = "centos/6"
-    centy.vm.hostname = "centos6s0"
-    centy.vm.network :private_network, :auto_network => true
-    centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
-    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-    centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
-    centy.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-      fi
-      yum -y update
-    SHELL
-    centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
+  ##########  CentOS 6 VM's  ##########   
+
+  centos6vms = [
+    {
+      :hostname => "centos6s0",
+      :box      => "centos/6",
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => "centos6s1",
+      :box      => "centos/6",
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => "centos6s2",
+      :box      => "centos/6",
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => "centos6s3",
+      :box      => "centos/6",
+      :cpu      => 1,
+      :ram      => 512,
+    },
+  ]
+
+  centos6vms.each do |machine|
+    config.vm.define machine[:hostname] do |centy|
+      centy.vm.box = machine[:box]
+      centy.vm.hostname = machine[:hostname]
+      centy.vm.provider "virtualbox" do |vb|
+        vb.customize ["modifyvm", :id, "--memory", machine[:ram]]
+      end
+      centy.vm.network :private_network, :auto_network => true
+      centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+      centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+      centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
+      centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+      centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
+      centy.vm.provision :shell, inline: <<-SHELL 
+        if rpm --quiet -q epel-release; then
+          echo 'EPEL repo present'
+        else
+          echo 'Adding EPEL repo'
+          rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+        fi
+        yum -y update
+      SHELL
+      centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
+    end
   end
 
-  config.vm.define "centos6s1" do |centy|
-    centy.vm.box = "centos/6"
-    centy.vm.hostname = "centos6s1"
-    centy.vm.network :private_network, :auto_network => true
-    centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
-    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-    centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
-    centy.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-      fi
-      yum -y update
-    SHELL
-    centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-  end
-   
-  config.vm.define "centos6s2" do |centy|
-    centy.vm.box = "centos/6"
-    centy.vm.hostname = "centos6s2"
-    centy.vm.network :private_network, :auto_network => true
-    centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
-    centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-    centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
-    centy.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-      fi
-      yum -y update
-    SHELL
-    #centy.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
-    centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-  end
+  ##########  Ubuntu 14 VM's  ##########   
 
-  config.vm.define "ubuntu14s0" do |ubu|
-    ubu.vm.box = "ubuntu/trusty64"
-    ubu.vm.hostname = "ubuntu14s0"
-    ubu.vm.network :private_network, :auto_network => true
-    ubu.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    ubu.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
-    ubu.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+  ubuntu14vms = [
+    {
+      :hostname => "ubu14s0",
+      :box      => "ubuntu/trusty64",
+      :cpu      => 1,
+      :ram      => 512,
+    },
+  ]
+
+  ubuntu14vms.each do |machine|
+    config.vm.define machine[:hostname] do |node|
+      node.vm.box      = machine[:box]
+      node.vm.hostname = machine[:hostname]
+      node.vm.provider "virtualbox" do |vb|
+        vb.customize ["modifyvm", :id, "--memory", machine[:ram]]
+      end
+      node.vm.network :private_network, :auto_network => true
+      node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
+      node.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+      node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+    end   
   end   
+
+  ##########  Example Settings  ##########   
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
