@@ -49,7 +49,13 @@ Vagrant.configure("2") do |config|
     {
       :hostname => "centos7s0",
       :box      => "centos/7",
-      :cpu      => 2,
+      :cpu      => 1,
+      :ram      => 1024,
+    },
+    {
+      :hostname => "centos7s1",
+      :box      => "centos/7",
+      :cpu      => 1,
       :ram      => 1024,
     },
   ]
