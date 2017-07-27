@@ -16,6 +16,7 @@ Development environment for Ansible Tower and clients using Vagrant and Virtualb
 
 This development environment requires the following on the host machine (i.e. your MacBook or PC):
 
+  - Virtualbox (VMware Fusion or VMware Workstation are supported with plugin)
   - Vagrant
   - Vagrant Plugins
   - Optional:  Create VM definitions in `Vagrantfile`.
