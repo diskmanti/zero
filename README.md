@@ -43,8 +43,8 @@ Start-up lag can be remedied by pruning unwanted definitions.
 Get status:
   - $ vagrant status
 
-Start VM's:
-  - $ vagrant up tower centos7s0 centos7s1
+Start all defined VM's:
+  - $ vagrant up
 
 Update hosts files:
   - $ vagrant hostmanager
@@ -76,12 +76,18 @@ Stop VM:
 ### Destroy VM(s) to abandon or rebuild:
 
   - $ vagrant destroy -f centos7s1
-  - $ vagrant destroy -f centos7s1  centos7s0 tower
+  - $ vagrant destroy -f centos7s1 centos7s0 tower
 
 ### Helpful commands
 
 Start all VM's:
   - $ vagrant up
+
+Start single VM:
+  - $ vagrant up centos7s0
+
+Start multiple VM's:
+  - $ vagrant up centos7s0 centos7s1
 
 Stop all VM's:
   - $ vagrant halt
