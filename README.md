@@ -1,7 +1,7 @@
 # ansible-tower
 _The only good bug is a dead bug._
 
-Development environment for Ansible Tower and client using Vagrant and Virtualbox.
+Development environment for Ansible Tower and clients using Vagrant and Virtualbox.
 
  _______________
 <  Ansible Tower  >
@@ -60,7 +60,7 @@ Run ansible ping module to connect to all nodes.
 Type yes and press return three times:
   - $ vagrant ssh tower
   - tower$ sudo su -
-  - tower$ ansible all -m ping   # **type yes three times**
+  - tower$ ansible all -m ping   #  *type yes three times*
   - tower$ exit
 
 ### Develop

@@ -16,9 +16,9 @@ Vagrant.configure("2") do |config|
 
   ##########  Ansible Tower  ##########   
 
-  config.vm.define "ansible230" do |node|
+  config.vm.define "tower" do |node|
     node.vm.box = "ansible/tower"
-    node.vm.hostname = "ansible230"
+    node.vm.hostname = "tower"
     node.vm.provider :virtualbox do |vb|
       vb.customize ['modifyvm', :id, '--memory', 3064]
     end
@@ -90,30 +90,30 @@ Vagrant.configure("2") do |config|
   ##########  CentOS 6 VM's  ##########   
 
   centos6vms = [
-    {
-      :hostname => "centos6s0",
-      :box      => "centos/6",
-      :cpu      => 1,
-      :ram      => 512,
-    },
-    {
-      :hostname => "centos6s1",
-      :box      => "centos/6",
-      :cpu      => 1,
-      :ram      => 512,
-    },
-    {
-      :hostname => "centos6s2",
-      :box      => "centos/6",
-      :cpu      => 1,
-      :ram      => 512,
-    },
-    {
-      :hostname => "centos6s3",
-      :box      => "centos/6",
-      :cpu      => 1,
-      :ram      => 512,
-    },
+#    {
+#      :hostname => "centos6s0",
+#      :box      => "centos/6",
+#      :cpu      => 1,
+#      :ram      => 512,
+#    },
+#    {
+#      :hostname => "centos6s1",
+#      :box      => "centos/6",
+#      :cpu      => 1,
+#      :ram      => 512,
+#    },
+#    {
+#      :hostname => "centos6s2",
+#      :box      => "centos/6",
+#      :cpu      => 1,
+#      :ram      => 512,
+#    },
+#    {
+#      :hostname => "centos6s3",
+#      :box      => "centos/6",
+#      :cpu      => 1,
+#      :ram      => 512,
+#    },
   ]
 
   centos6vms.each do |machine|
@@ -145,12 +145,12 @@ Vagrant.configure("2") do |config|
   ##########  Ubuntu 14 VM's  ##########   
 
   ubuntu14vms = [
-    {
-      :hostname => "ubu14s0",
-      :box      => "ubuntu/trusty64",
-      :cpu      => 1,
-      :ram      => 512,
-    },
+#    {
+#      :hostname => "ubu14s0",
+#      :box      => "ubuntu/trusty64",
+#      :cpu      => 1,
+#      :ram      => 512,
+#    },
   ]
 
   ubuntu14vms.each do |machine|
