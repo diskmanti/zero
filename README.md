@@ -17,7 +17,7 @@ Install Vagrant by downloading from https://www.vagrantup.com/downloads.html
 
 ### Install Vagrant Plugins
 
-Install Vagrant plugins using native plugin manager.  `vagrant-hostmanager` Manages VM operating system hosts file (/etc/hosts).
+Install Vagrant plugins using native plugin manager.  `vagrant-hostmanager` manages VM operating system hosts file (/etc/hosts).
 
   - $ vagrant plugin install vagrant-hostmanager
 
