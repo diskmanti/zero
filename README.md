@@ -67,17 +67,17 @@ Login to Ansible Tower server and change to root.
   - $ vagrant ssh tower
 
 On server `tower` change to root and run ansible ping module to connect to all nodes.
+*Execute as root on `tower` server&*:
 Type yes and press return three times:
   - tower$ sudo su -
   - tower$ ansible all -m ping   #  *type yes three times*
-  - tower$ exit
 
 ### Develop
 
 Ansible repo available from tower server at `/vagrant/files`.
 This is a shared directory to directory where Vagrantfile resides on host.
 
-Example LAMP simple on CentOS 7.  Execute as root on tower server:
+Example LAMP simple on CentOS 7.  *Execute as root on `tower` server&*:
 See readme https://github.com/rcompos/ansible-tower/files/lamp_simple_rhel7-demo/README.md
 
   - tower$  cd /vagrant/files/lamp_simple_rhel7-demo
