@@ -78,7 +78,8 @@ Ansible repo available from tower server at `/vagrant/files`.
 This is a shared directory to directory where Vagrantfile resides on host.
 
 Example LAMP simple on CentOS 7.  Execute as root on tower server:
-See readme 
+See readme https://github.com/rcompos/ansible-tower/files/lamp_simple_rhel7-demo/README.md
+
   - tower$  cd /vagrant/files/lamp_simple_rhel7-demo
   - tower$  ansible-playbook -i hosts site.yml
 
