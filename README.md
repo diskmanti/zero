@@ -86,11 +86,10 @@ See readme https://github.com/rcompos/ansible-tower/files/lamp_simple_rhel7-demo
 ### Stop VM's
 
 Stop VM's:
-  - $ vagrant halt centos7s1 centos7s0 tower
+  - $ vagrant halt
 
-### Destroy VM(s) to abandon or rebuild:
+### Destroy VM's to abandon or rebuild:
 
-  - $ vagrant destroy -f centos7s1
   - $ vagrant destroy -f centos7s1 centos7s0 tower
 
 ### Helpful commands
@@ -104,8 +103,11 @@ Start single VM:
 Start multiple VM's:
   - $ vagrant up centos7s0 centos7s1
 
-Stop all VM's:
-  - $ vagrant halt
+Stop single VM:
+  - $ vagrant halt centos7s0
+
+Stop multiple VM's:
+  - $ vagrant halt centos7s0 centos7s1
 
 Get global status:
   - $ vagrant global-status
