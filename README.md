@@ -55,9 +55,9 @@ Bounce servers to disable SELinux (unfortunate for now):
 
 Login to Ansible Tower server(s) and change to root.  Run ansible to connect to all nodes then type yes then enter three times:
   - $ vagrant ssh ansible230
-  - # sudo su -
-  - # ansible all -m ping   # *type yes three times*
-  - # exit
+  - ansible230$ sudo su -
+  - ansible230$ ansible all -m ping   # type yes three times
+  - ansible230$ exit
 
 Stop VM's:
   - $ vagrant halt centos7s1 centos7s0 ansible230
