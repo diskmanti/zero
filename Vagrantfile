@@ -16,11 +16,12 @@ Vagrant.configure("2") do |config|
 
   ##########  Ansible Tower  ##########   
 
-  config.vm.define "tower" do |node|
+  config.vm.define 'tower' do |node|
     node.vm.box = "ansible/tower"
-    node.vm.hostname = "tower"
+    node.vm.hostname = 'tower'
     node.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 3064]
+      vb.customize ['modifyvm', :id, '--memory', 2048]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
     end
     #node.vm.network :private_network, :auto_network => true
     node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
@@ -47,14 +48,14 @@ Vagrant.configure("2") do |config|
 
   centos7vms = [
     {
-      :hostname => "centos7s0",
-      :box      => "centos/7",
+      :hostname => 'centos7s0',
+      :box      => 'centos/7',
       :cpu      => 1,
       :ram      => 1024,
     },
     {
-      :hostname => "centos7s1",
-      :box      => "centos/7",
+      :hostname => 'centos7s1',
+      :box      => 'centos/7',
       :cpu      => 1,
       :ram      => 1024,
     },
@@ -65,9 +66,10 @@ Vagrant.configure("2") do |config|
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
       #node.vm.autostart = false
-      #node.vm.network :"private_network", ip: "192.168.33.10" 
-      node.vm.provider "virtualbox" do |vb|
-        vb.customize ["modifyvm", :id, "--memory", machine[:ram]]
+      #node.vm.network :'private_network', ip: '192.168.33.10'
+      node.vm.provider 'virtualbox' do |vb|
+        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
+        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
       end
       node.vm.network :private_network, :auto_network => true
       node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
@@ -91,26 +93,26 @@ Vagrant.configure("2") do |config|
 
   centos6vms = [
 #    {
-#      :hostname => "centos6s0",
-#      :box      => "centos/6",
+#      :hostname => 'centos6s0',
+#      :box      => 'centos/6',
 #      :cpu      => 1,
 #      :ram      => 512,
 #    },
 #    {
-#      :hostname => "centos6s1",
-#      :box      => "centos/6",
+#      :hostname => 'centos6s1',
+#      :box      => 'centos/6',
 #      :cpu      => 1,
 #      :ram      => 512,
 #    },
 #    {
-#      :hostname => "centos6s2",
-#      :box      => "centos/6",
+#      :hostname => 'centos6s2',
+#      :box      => 'centos/6',
 #      :cpu      => 1,
 #      :ram      => 512,
 #    },
 #    {
-#      :hostname => "centos6s3",
-#      :box      => "centos/6",
+#      :hostname => 'centos6s3',
+#      :box      => 'centos/6',
 #      :cpu      => 1,
 #      :ram      => 512,
 #    },
@@ -120,8 +122,8 @@ Vagrant.configure("2") do |config|
     config.vm.define machine[:hostname] do |centy|
       centy.vm.box = machine[:box]
       centy.vm.hostname = machine[:hostname]
-      centy.vm.provider "virtualbox" do |vb|
-        vb.customize ["modifyvm", :id, "--memory", machine[:ram]]
+      centy.vm.provider 'virtualbox' do |vb|
+        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
       end
       centy.vm.network :private_network, :auto_network => true
       centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
@@ -146,8 +148,8 @@ Vagrant.configure("2") do |config|
 
   ubuntu14vms = [
 #    {
-#      :hostname => "ubu14s0",
-#      :box      => "ubuntu/trusty64",
+#      :hostname => 'ubu14s0',
+#      :box      => 'ubuntu/trusty64',
 #      :cpu      => 1,
 #      :ram      => 512,
 #    },
@@ -157,8 +159,8 @@ Vagrant.configure("2") do |config|
     config.vm.define machine[:hostname] do |node|
       node.vm.box      = machine[:box]
       node.vm.hostname = machine[:hostname]
-      node.vm.provider "virtualbox" do |vb|
-        vb.customize ["modifyvm", :id, "--memory", machine[:ram]]
+      node.vm.provider 'virtualbox' do |vb|
+        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
       end
       node.vm.network :private_network, :auto_network => true
       node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
