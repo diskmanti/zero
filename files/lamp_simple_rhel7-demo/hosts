@@ -1,0 +1,9 @@
+[webservers]
+#webserver.local
+centos7s0
+
+[dbservers]
+#dbserver.local
+centos7s1
+
+
