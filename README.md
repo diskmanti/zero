@@ -1,9 +1,17 @@
 # ansible-tower
 _The only good bug is a dead bug._
 
-Development environment for Ansible Tower and client VM's using Vagrant
+Development environment for Ansible Tower 3.1.4 (Ansible 2.3.1.0) and CentOS client VM's using Vagrant. 
+ _______________
+<  Tower 3.1.4  >
+ ---------------
+        \   ^__^
+         \  (oo)\_______
+            (__)      A )\/\
+                ||----w |
+                ||     ||
 
-## Setup
+## Requirements
 
 This development environment requires the following on the host machine (i.e. your MacBook or PC):
 
@@ -20,7 +28,6 @@ Install Vagrant by downloading from https://www.vagrantup.com/downloads.html
 Install Vagrant plugins using native plugin manager.  `vagrant-hostmanager` manages VM operating system hosts file (/etc/hosts).
 
   - $ vagrant plugin install vagrant-hostmanager
-
 
 ### Create VM Definitions (optional)
 
