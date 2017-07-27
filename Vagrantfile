@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
 
-  ##########  Ansible Tower 2.3.0  ##########   
+  ##########  Ansible Tower  ##########   
 
   config.vm.define "ansible230" do |node|
     node.vm.box = "ansible/tower"
