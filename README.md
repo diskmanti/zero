@@ -80,9 +80,10 @@ Login to Ansible Tower server and change to root.
 On server *tower* change to root and run ansible ping module to connect to all nodes.
 *Execute as root on server 'tower'.*  Type yes and press return three times:
 
-`tower$ sudo su -`
-
-`tower$ ansible all -m ping   #  *type yes three times*`
+```
+tower$ sudo su -
+tower$ ansible all -m ping   #  *type yes three times*
+```
 
 ## Develop
 
