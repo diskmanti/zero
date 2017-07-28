@@ -69,6 +69,7 @@ Re-run provision scripts to update Ansible hosts:
 `$ vagrant provision tower`
 
 Bounce servers to disable SELinux (unfortunate for now):
+
 `$ vagrant reload dbserver0 webserver0`
 
 Login to Ansible Tower server and change to root. 
@@ -80,6 +81,7 @@ On server *tower* change to root and run ansible ping module to connect to all n
 *Execute as root on server 'tower'.*  Type yes and press return three times:
 
 `tower$ sudo su -`
+
 `tower$ ansible all -m ping   #  *type yes three times*`
 
 ## Develop
@@ -91,37 +93,41 @@ This is a shared directory to directory where Vagrantfile resides on host.
 Vagrant up servers `webserver0` and `dbserver0`.  *Execute as root on server 'tower'*:
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/lamp_simple_rhel7-demo
 
-`tower$  cd /vagrant/files/lamp_simple_rhel7-demo`
-`tower$  ansible-playbook -i hosts site.yml`
-
-`URL:  http://<webserver0_ip>/index.php`
+```
+tower$  cd /vagrant/files/lamp_simple_rhel7-demo
+tower$  ansible-playbook -i hosts site.yml
+URL:  http://<webserver0_ip>/index.php
+```
 
 #### Tomcat on CentOS 7
 Vagrant up server `tomcat0`.  *Execute as root on server 'tower'*:
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/tomcat-standalone-demo
 
-`tower$  cd /vagrant/files/tomcat-standalone-demo`
-`tower$  ansible-playbook -i hosts site.yml`
-
-`URL:  http://<tomcat0_ip>:8080`
+```
+tower$  cd /vagrant/files/tomcat-standalone-demo
+tower$  ansible-playbook -i hosts site.yml
+URL:  http://<tomcat0_ip>:8080
+```
 
 #### MongoDB on CentOS 6 cluster
 Vagrant up servers `mongo1`, `mongo2`, `mongo3` and `mongo4`.  *Execute as root on server 'tower'*:
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/mongodb-demo
 
-`tower$  cd /vagrant/files/mongodb-demo`
-`tower$  ansible-playbook -i hosts site.yml`
-
-`URL:  http://<mongo1_up>:????`
+```
+tower$  cd /vagrant/files/mongodb-demo
+tower$  ansible-playbook -i hosts site.yml
+URL:  http://<mongo1_up>:????
+```
 
 #### Wordpress Nginx on CentOS 7
 Vagrant up `wordpress0`.  *Execute as root on server 'tower'*:
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/wordpress-nginx_rhel7-demo
 
-`tower$  cd /vagrant/files/wordpress-nginx_rhel7-demo`
-`tower$  ansible-playbook -i hosts site.yml`
-
-`URL:  http://<wordpress0_ip>`
+```
+tower$  cd /vagrant/files/wordpress-nginx_rhel7-demo
+tower$  ansible-playbook -i hosts site.yml
+URL:  http://<wordpress0_ip>
+```
 
 ## Destruction
 #### Stop VM's
