@@ -59,6 +59,12 @@ Vagrant.configure("2") do |config|
       :cpu      => 1,
       :ram      => 1024,
     },
+    {
+      :hostname => 'tomcat0',
+      :box      => 'centos/7',
+      :cpu      => 1,
+      :ram      => 512,
+    },
   ]
 
   centos7vms.each do |machine|
