@@ -177,12 +177,12 @@ Vagrant.configure("2") do |config|
   ##########  Ubuntu 14 VM's  ##########   
 
   ubuntu14vms = [
-#    {
-#      :hostname => 'ubu14s0',
-#      :box      => 'ubuntu/trusty64',
-#      :cpu      => 1,
-#      :ram      => 512,
-#    },
+    {
+      :hostname => 'ubu14s0',
+      :box      => 'ubuntu/trusty64',
+      :cpu      => 1,
+      :ram      => 512,
+    },
   ]
 
   ubuntu14vms.each do |machine|
