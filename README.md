@@ -92,6 +92,7 @@ This is a shared directory to directory where Vagrantfile resides on host.
 
 #### LAMP simple on CentOS 7 
 Vagrant up servers `webserver0` and `dbserver0`.  *Execute as root on server 'tower'*:
+
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/lamp_simple_rhel7-demo
 
 ```
@@ -102,6 +103,7 @@ URL:  http://<webserver0_ip>/index.php
 
 #### Tomcat on CentOS 7
 Vagrant up server `tomcat0`.  *Execute as root on server 'tower'*:
+
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/tomcat-standalone-demo
 
 ```
@@ -112,6 +114,7 @@ URL:  http://<tomcat0_ip>:8080
 
 #### MongoDB on CentOS 6 cluster
 Vagrant up servers `mongo1`, `mongo2`, `mongo3` and `mongo4`.  *Execute as root on server 'tower'*:
+
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/mongodb-demo
 
 ```
@@ -122,6 +125,7 @@ URL:  http://<mongo1_up>:????
 
 #### Wordpress Nginx on CentOS 7
 Vagrant up `wordpress0`.  *Execute as root on server 'tower'*:
+
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/wordpress-nginx_rhel7-demo
 
 ```
