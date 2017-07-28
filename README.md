@@ -25,7 +25,8 @@ This development environment requires the following on the host machine (i.e. yo
 
 #### Clone repo
 Clone this repository to local host and change to directory.
-  - $ git clone https://github.com/rcompos/ansible-tower
+
+`$ git clone https://github.com/rcompos/ansible-tower`
 
 #### Install Vagrant
 
@@ -51,16 +52,20 @@ Start-up lag can be remedied by pruning unwanted definitions.
 Change to *ansible-tower* directory and run the following as your user (root not required).
 
 Get status:
+
 `$ vagrant status`
 
 Start set of VM's:
+
 `$ vagrant up tower dbserver0 webserver0`
 
 Update hosts files:
+
 `$ vagrant hostmanager`
 
 Re-run provision scripts to update Ansible hosts:
 *All ip addresses are listed.*
+
 `$ vagrant provision tower`
 
 Bounce servers to disable SELinux (unfortunate for now):
@@ -68,10 +73,12 @@ Bounce servers to disable SELinux (unfortunate for now):
 
 Login to Ansible Tower server and change to root. 
 *The login message provides the url, username and password for Ansible Tower web service.*
+
 `$ vagrant ssh tower`
 
 On server *tower* change to root and run ansible ping module to connect to all nodes.
 *Execute as root on server 'tower'.*  Type yes and press return three times:
+
 `tower$ sudo su -`
 `tower$ ansible all -m ping   #  *type yes three times*`
 
@@ -120,6 +127,7 @@ See readme https://github.com/rcompos/ansible-tower/tree/master/files/wordpress-
 #### Stop VM's
 
 Stop VM's:
+
 `$ vagrant halt`
 
 #### Destroy VM's to abandon or rebuild:
@@ -129,19 +137,25 @@ Stop VM's:
 ## Helpful Commands
 
 Start all VM's:
+
 `$ vagrant up`
 
 Start single VM:
+
 `$ vagrant up tower`
 
 Start multiple VM's:
+
 `$ vagrant up dbserver webserver`
 
 Stop single VM:
+
 `$ vagrant halt dbserver`
 
 Stop multiple VM's:
+
 `$ vagrant halt dbserver webserver`
 
 Get global status:
+
 `$ vagrant global-status`
