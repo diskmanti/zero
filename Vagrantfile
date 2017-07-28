@@ -60,13 +60,13 @@ Vagrant.configure("2") do |config|
       :ram      => 1024,
     },
     {
-      :hostname => 'dbserver',
+      :hostname => 'dbserver0',
       :box      => 'centos/7',
       :cpu      => 1,
       :ram      => 1024,
     },
     {
-      :hostname => 'webserver',
+      :hostname => 'webserver0',
       :box      => 'centos/7',
       :cpu      => 1,
       :ram      => 1024,
@@ -75,7 +75,13 @@ Vagrant.configure("2") do |config|
       :hostname => 'tomcat0',
       :box      => 'centos/7',
       :cpu      => 1,
-      :ram      => 512,
+      :ram      => 1024,
+    },
+    {
+      :hostname => 'wordpress0',
+      :box      => 'centos/7',
+      :cpu      => 1,
+      :ram      => 1024,
     },
   ]
 

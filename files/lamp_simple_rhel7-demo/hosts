@@ -1,9 +1,9 @@
 [webservers]
 #webserver.local
-webserver
+webserver0
 
 [dbservers]
 #dbserver.local
-dbserver
+dbserver0
 
 

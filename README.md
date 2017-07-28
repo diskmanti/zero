@@ -51,7 +51,7 @@ Get status:
   - $ vagrant status
 
 Start set of VM's:
-  - $ vagrant up tower dbserver webserver
+  - $ vagrant up tower dbserver0 webserver0
 
 Update hosts files:
   - $ vagrant hostmanager
@@ -61,7 +61,7 @@ Re-run provision scripts to update Ansible hosts:
   - $ vagrant provision tower
 
 Bounce servers to disable SELinux (unfortunate for now):
-  - $ vagrant reload dbserver webserver
+  - $ vagrant reload dbserver0 webserver0
 
 Login to Ansible Tower server and change to root. 
 *The login message provides the url, username and password for Ansible Tower web service.*
@@ -78,7 +78,7 @@ Type yes and press return three times:
 Ansible repo available from tower server at `/vagrant/files`.
 This is a shared directory to directory where Vagrantfile resides on host.
 
-Example LAMP simple on CentOS 7 `webserver` and `dbserver`.  *Execute as root on* `tower` *server*:
+Example LAMP simple on CentOS 7 `webserver0` and `dbserver0`.  *Execute as root on* `tower` *server*:
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/lamp_simple_rhel7-demo
 
   - tower$  cd /vagrant/files/lamp_simple_rhel7-demo
@@ -94,6 +94,12 @@ Example MongoDB on CentOS 6 cluster on `mongo1`, `mongo2`, `mongo3` and `mongo4`
 See readme https://github.com/rcompos/ansible-tower/tree/master/files/mongodb-demo
 
   - tower$  cd /vagrant/files/mongodb-demo
+  - tower$  ansible-playbook -i hosts site.yml
+
+Example Wordpress Nginx on CentOS 7 on `wordpress0`.  *Execute as root on* `tower` *server*:
+See readme https://github.com/rcompos/ansible-tower/tree/master/files/wordpress-nginx_rhel7-demo
+
+  - tower$  cd /vagrant/files/wordpress-nginx_rhel7-demo
   - tower$  ansible-playbook -i hosts site.yml
 
 ### Stop VM's

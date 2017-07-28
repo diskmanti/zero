@@ -1,4 +1,6 @@
 #!/bin/env perl
+#
+# Ron Compos, 07/20/2017
 
 use warnings;
 use strict;
