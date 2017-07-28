@@ -60,6 +60,18 @@ Vagrant.configure("2") do |config|
       :ram      => 1024,
     },
     {
+      :hostname => 'dbserver',
+      :box      => 'centos/7',
+      :cpu      => 1,
+      :ram      => 1024,
+    },
+    {
+      :hostname => 'webserver',
+      :box      => 'centos/7',
+      :cpu      => 1,
+      :ram      => 1024,
+    },
+    {
       :hostname => 'tomcat0',
       :box      => 'centos/7',
       :cpu      => 1,
@@ -98,30 +110,42 @@ Vagrant.configure("2") do |config|
   ##########  CentOS 6 VM's  ##########   
 
   centos6vms = [
-#    {
-#      :hostname => 'centos6s0',
-#      :box      => 'centos/6',
-#      :cpu      => 1,
-#      :ram      => 512,
-#    },
-#    {
-#      :hostname => 'centos6s1',
-#      :box      => 'centos/6',
-#      :cpu      => 1,
-#      :ram      => 512,
-#    },
-#    {
-#      :hostname => 'centos6s2',
-#      :box      => 'centos/6',
-#      :cpu      => 1,
-#      :ram      => 512,
-#    },
-#    {
-#      :hostname => 'centos6s3',
-#      :box      => 'centos/6',
-#      :cpu      => 1,
-#      :ram      => 512,
-#    },
+    {
+      :hostname => 'centos6s0',
+      :box      => 'centos/6',
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => 'centos6s1',
+      :box      => 'centos/6',
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => 'mongo1',
+      :box      => 'centos/6',
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => 'mongo2',
+      :box      => 'centos/6',
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => 'mongo3',
+      :box      => 'centos/6',
+      :cpu      => 1,
+      :ram      => 512,
+    },
+    {
+      :hostname => 'mongo4',
+      :box      => 'centos/6',
+      :cpu      => 1,
+      :ram      => 512,
+    },
   ]
 
   centos6vms.each do |machine|

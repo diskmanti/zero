@@ -1,9 +1,9 @@
 [webservers]
 #webserver.local
-centos7s0
+webserver
 
 [dbservers]
 #dbserver.local
-centos7s1
+dbserver
 
 
