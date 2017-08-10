@@ -32,7 +32,8 @@ for ( @vagrant_hosts ) { chomp; print "  $_\n" }  # Print all Vagrant Hostmanage
 
 print "\n";
 
-my @ansible_hosts = `/bin/cat /etc/ansible/hosts`;
+#my @ansible_hosts = `/bin/cat /etc/ansible/hosts`;
+my @ansible_hosts = `/bin/cat ${ansible_hosts}`;
 my @ansible_hosts_new;
 
 for ( @ansible_hosts ) {
@@ -42,7 +43,7 @@ for ( @ansible_hosts ) {
 
 if( @vagrant_hosts ) {
   print "Adding hosts to $ansible_hosts\n";
-  push( @ansible_hosts_new, "\n[localdev]\n" );
+  push( @ansible_hosts_new, "[localdev]\n" );
   for ( @vagrant_hosts ) {
     chomp;
     s/^\s*\S+\s+(\S+)/$1/;

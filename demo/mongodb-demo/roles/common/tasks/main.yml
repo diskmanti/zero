@@ -34,3 +34,9 @@
 - name: Create the iptables file
   template: src=iptables.j2 dest=/etc/sysconfig/iptables
   notify: restart iptables
+
+- name: File /var/log perms
+  file: 
+    path: /var/log
+    state: directory
+    mode: 0777

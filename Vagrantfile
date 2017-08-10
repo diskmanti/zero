@@ -25,11 +25,11 @@ Vagrant.configure("2") do |config|
     end
     #node.vm.network :private_network, :auto_network => true
     node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    node.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+    node.vm.provision :shell, inline: "cp /vagrant/config/id_rsa* /root/.ssh"
     node.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
     node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    node.vm.provision :shell, inline: "cp /vagrant/files/license /etc/tower/license"
-    node.vm.provision :shell, path:   "files/hostwithmost.pl"
+    node.vm.provision :shell, inline: "cp /vagrant/config/license /etc/tower/license"
+    node.vm.provision :shell, path:   "config/hostwithmost.pl"
     node.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
@@ -42,6 +42,12 @@ Vagrant.configure("2") do |config|
     #if Vagrant.has_plugin? 'vagrant-hostmanager'
     #  system "vagrant hostmanager"
     #end
+    node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
+    #node.vm.provision :shell, inline: "yum -y install bash-completion"
+    #node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
+    #node.vm.provision :shell, path:   "config/gitconfiger.pl"
+    node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
+    node.vm.provision :shell, path:   "config/bashrc_mod.pl"
   end
 
   ##########  CentOS 7 VM's  ##########   
