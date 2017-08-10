@@ -1,15 +1,14 @@
 # ansible-tower
-_The only good bug is a dead bug._
 
 Development environment for Ansible Tower and clients using Vagrant and Virtualbox.
 
 ```
- _______________
-<  Ansible Tower  >
- ---------------
+ ____________________________________
+<  The only good bug is a dead bug.  >
+ ------------------------------------
         \   ^__^
          \  (oo)\_______
-            (__)      A )\/\
+            (__)        )\/\
                 ||----w |
                 ||     ||
 ```
