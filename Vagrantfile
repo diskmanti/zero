@@ -39,9 +39,10 @@ Vagrant.configure("2") do |config|
       fi
       yum -y update
     SHELL
-    #if Vagrant.has_plugin? 'vagrant-hostmanager'
-    #  system "vagrant hostmanager"
-    #end
+    ##if Vagrant.has_plugin? 'vagrant-hostmanager'
+    ##  system "vagrant hostmanager"
+    ##end
+    node.vm.provision :shell, inline: "yum -y install bash-completion"
     #node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
     #node.vm.provision :shell, path:   "config/gitconfiger.pl"
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"

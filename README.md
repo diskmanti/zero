@@ -1,6 +1,7 @@
 # ansible-tower
 
-Development environment for Ansible Tower and clients using Vagrant and Virtualbox.
+Development environment for Ansible using Vagrant and Virtualbox.
+Include VM definitions for Ansible Tower and clients running CentOS 6 & 7 and Ubuntu 14.
 
 ```
  ____________________________________
