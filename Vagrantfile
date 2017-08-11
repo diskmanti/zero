@@ -42,13 +42,12 @@ Vagrant.configure("2") do |config|
     ##if Vagrant.has_plugin? 'vagrant-hostmanager'
     ##  system "vagrant hostmanager"
     ##end
-    node.vm.provision :shell, inline: "yum -y install bash-completion"
+    node.vm.provision :shell, inline: "yum -y install bash-completion tree bc"
     #node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
     #node.vm.provision :shell, path:   "config/gitconfiger.pl"
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
     node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
-    #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
   end
 
@@ -132,6 +131,7 @@ Vagrant.configure("2") do |config|
       #node.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
       node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+      node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     end
   end
@@ -139,6 +139,12 @@ Vagrant.configure("2") do |config|
   ##########  CentOS 6 VM's  ##########   
 
   centos6vms = [
+    {
+      :hostname => 'dev5',
+      :box      => 'centos/6',
+      :cpu      => 1,
+      :ram      => 1024,
+    },
     {
       :hostname => 'centos6s0',
       :box      => 'centos/6',
