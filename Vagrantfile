@@ -47,7 +47,8 @@ Vagrant.configure("2") do |config|
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
     node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
-    node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+    #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
   end
 
   ##########  CentOS 7 VM's  ##########   
@@ -103,7 +104,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.network :private_network, :auto_network => true
       node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-      node.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+      node.vm.provision :shell, inline: "cp /vagrant/config/id_rsa* /root/.ssh"
       node.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
       node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
       node.vm.provision :shell, inline: <<-SHELL 
@@ -116,6 +117,9 @@ Vagrant.configure("2") do |config|
         yum -y update
       SHELL
       #node.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
+      node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
+      #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+      node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     end
   end
 
@@ -169,7 +173,7 @@ Vagrant.configure("2") do |config|
       end
       centy.vm.network :private_network, :auto_network => true
       centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-      centy.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+      centy.vm.provision :shell, inline: "cp /vagrant/config/id_rsa* /root/.ssh"
       centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
       centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
       centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
@@ -183,6 +187,9 @@ Vagrant.configure("2") do |config|
         yum -y update
       SHELL
       centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
+      node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
+      #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+      node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     end
   end
 
@@ -206,7 +213,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.network :private_network, :auto_network => true
       node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-      node.vm.provision :shell, inline: "cp /vagrant/files/id_rsa* /root/.ssh"
+      node.vm.provision :shell, inline: "cp /vagrant/config/id_rsa* /root/.ssh"
       node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
     end   
   end   
