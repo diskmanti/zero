@@ -55,6 +55,18 @@ Vagrant.configure("2") do |config|
 
   centos7vms = [
     {
+      :hostname => 'dev0',
+      :box      => 'centos/7',
+      :cpu      => 1,
+      :ram      => 1024,
+    },
+    {
+      :hostname => 'dev1',
+      :box      => 'centos/7',
+      :cpu      => 1,
+      :ram      => 1024,
+    },
+    {
       :hostname => 'centos7s0',
       :box      => 'centos/7',
       :cpu      => 1,
@@ -187,9 +199,9 @@ Vagrant.configure("2") do |config|
         yum -y update
       SHELL
       centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-      node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
+      centy.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
-      node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+      centy.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     end
   end
 
