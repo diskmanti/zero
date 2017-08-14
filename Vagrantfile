@@ -129,7 +129,6 @@ Vagrant.configure("2") do |config|
         yum -y update
       SHELL
       #node.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
-      node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
       node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
@@ -206,8 +205,8 @@ Vagrant.configure("2") do |config|
         yum -y update
       SHELL
       centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-      centy.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+      centy.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       centy.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     end
   end
