@@ -55,25 +55,13 @@ Vagrant.configure("2") do |config|
 
   centos7vms = [
     {
-      :hostname => 'dev0',
+      :hostname => 'cent7s0',
       :box      => 'centos/7',
       :cpu      => 1,
       :ram      => 1024,
     },
     {
-      :hostname => 'dev1',
-      :box      => 'centos/7',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
-    {
-      :hostname => 'centos7s0',
-      :box      => 'centos/7',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
-    {
-      :hostname => 'centos7s1',
+      :hostname => 'cent7s1',
       :box      => 'centos/7',
       :cpu      => 1,
       :ram      => 1024,
@@ -139,19 +127,13 @@ Vagrant.configure("2") do |config|
 
   centos6vms = [
     {
-      :hostname => 'dev5',
-      :box      => 'centos/6',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
-    {
-      :hostname => 'centos6s0',
+      :hostname => 'cent6s0',
       :box      => 'centos/6',
       :cpu      => 1,
       :ram      => 512,
     },
     {
-      :hostname => 'centos6s1',
+      :hostname => 'cent6s1',
       :box      => 'centos/6',
       :cpu      => 1,
       :ram      => 512,
