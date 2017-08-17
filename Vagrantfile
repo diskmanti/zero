@@ -35,20 +35,23 @@ Vagrant.configure("2") do |config|
         echo 'EPEL repo present'
       else
         echo 'Adding EPEL repo'
-        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
       fi
-      yum -y update
+      /bin/yum -y update
     SHELL
     ##if Vagrant.has_plugin? 'vagrant-hostmanager'
     ##  system "vagrant hostmanager"
     ##end
-    node.vm.provision :shell, inline: "yum -y install bash-completion tree bc"
+    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bc"
     #node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
     #node.vm.provision :shell, path:   "config/gitconfiger.pl"
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
-    node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
+    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    node.vm.provision :shell, inline: "/bin/yum -y install python2-pip"
+    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
+    node.vm.provision :shell, inline: "[[ -f /etc/yum.repos.d/epel-7.repo ]] && /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
   end
 
   ##########  CentOS 7 VM's  ##########   
@@ -66,30 +69,30 @@ Vagrant.configure("2") do |config|
       :cpu      => 1,
       :ram      => 1024,
     },
-    {
-      :hostname => 'dbserver0',
-      :box      => 'centos/7',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
-    {
-      :hostname => 'webserver0',
-      :box      => 'centos/7',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
-    {
-      :hostname => 'tomcat0',
-      :box      => 'centos/7',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
-    {
-      :hostname => 'wordpress0',
-      :box      => 'centos/7',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
+    #{
+    #  :hostname => 'dbserver0',
+    #  :box      => 'centos/7',
+    #  :cpu      => 1,
+    #  :ram      => 1024,
+    #},
+    #{
+    #  :hostname => 'webserver0',
+    #  :box      => 'centos/7',
+    #  :cpu      => 1,
+    #  :ram      => 1024,
+    #},
+    #{
+    #  :hostname => 'tomcat0',
+    #  :box      => 'centos/7',
+    #  :cpu      => 1,
+    #  :ram      => 1024,
+    #},
+    #{
+    #  :hostname => 'wordpress0',
+    #  :box      => 'centos/7',
+    #  :cpu      => 1,
+    #  :ram      => 1024,
+    #},
   ]
 
   centos7vms.each do |machine|
@@ -138,30 +141,30 @@ Vagrant.configure("2") do |config|
       :cpu      => 1,
       :ram      => 512,
     },
-    {
-      :hostname => 'mongo1',
-      :box      => 'centos/6',
-      :cpu      => 1,
-      :ram      => 512,
-    },
-    {
-      :hostname => 'mongo2',
-      :box      => 'centos/6',
-      :cpu      => 1,
-      :ram      => 512,
-    },
-    {
-      :hostname => 'mongo3',
-      :box      => 'centos/6',
-      :cpu      => 1,
-      :ram      => 512,
-    },
-    {
-      :hostname => 'mongo4',
-      :box      => 'centos/6',
-      :cpu      => 1,
-      :ram      => 512,
-    },
+    #{
+    #  :hostname => 'mongo1',
+    #  :box      => 'centos/6',
+    #  :cpu      => 1,
+    #  :ram      => 512,
+    #},
+    #{
+    #  :hostname => 'mongo2',
+    #  :box      => 'centos/6',
+    #  :cpu      => 1,
+    #  :ram      => 512,
+    #},
+    #{
+    #  :hostname => 'mongo3',
+    #  :box      => 'centos/6',
+    #  :cpu      => 1,
+    #  :ram      => 512,
+    #},
+    #{
+    #  :hostname => 'mongo4',
+    #  :box      => 'centos/6',
+    #  :cpu      => 1,
+    #  :ram      => 512,
+    #},
   ]
 
   centos6vms.each do |machine|
@@ -196,12 +199,12 @@ Vagrant.configure("2") do |config|
   ##########  Ubuntu 14 VM's  ##########   
 
   ubuntu14vms = [
-    {
-      :hostname => 'ubu14s0',
-      :box      => 'ubuntu/trusty64',
-      :cpu      => 1,
-      :ram      => 512,
-    },
+    #{
+    #  :hostname => 'ubu14s0',
+    #  :box      => 'ubuntu/trusty64',
+    #  :cpu      => 1,
+    #  :ram      => 512,
+    #},
   ]
 
   ubuntu14vms.each do |machine|
