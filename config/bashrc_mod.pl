@@ -41,7 +41,7 @@ my @new_config = <<'END_HEREDOC';
 # For Git command prompt
 [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ] && . /usr/share/git-core/contrib/completion/git-prompt.sh
 GIT_PS1_SHOWDIRTYSTATE=true
-export PS1='\u@\h \W$(__git_ps1) \$ '
+export PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(__git_ps1)\[\033[00m\] $ "
 
 HISTFILESIZE=1048576000
 HISTSIZE=
