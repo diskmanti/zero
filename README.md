@@ -1,7 +1,11 @@
 # ansible-tower
 
-Development environment for Ansible using Vagrant and Virtualbox.
+Development environment for Ansible Tower using Vagrant and Virtualbox.
 Include VM definitions for Ansible Tower and clients running CentOS 6 & 7 and Ubuntu 14.
+
+The tower vm runs the latest vagrant box *ansible/tower*.
+
+The clients run *centos/6*, *centos/7* and *ubuntu/trusty64*.
 
 ```
  ____________________________________
@@ -19,9 +23,7 @@ This development environment requires the following on the host machine (i.e. yo
 
   - Virtualbox (VMware Fusion or VMware Workstation are supported with plugin)
   - Vagrant
-  - Vagrant Plugins
   - Git
-  - Optional:  Create VM definitions in *Vagrantfile*.
 
 #### Clone repo
 Clone this repository to local host and change to directory.
@@ -30,9 +32,9 @@ Clone this repository to local host and change to directory.
 
 #### Install Vagrant
 
-Install Vagrant by downloading from https://www.vagrantup.com/downloads.html
+The Vagrant recommendation is to download installer from https://www.vagrantup.com/downloads.html
 
-#### Install Vagrant Plugins
+#### Install Vagrant Plugin(s)
 
 Install Vagrant plugins using native plugin manager.  
 *vagrant-hostmanager* manages VM operating system hosts file (*/etc/hosts*).
@@ -47,7 +49,7 @@ A large number of VM definitions which adds some notable lag to Vagrant start-up
 Start-up lag can be remedied by pruning unwanted definitions.
 
 ## Setup
-#### Spin up new VM's and configure
+#### Spin up Tower VM
 
 Change to *ansible-tower* directory and run the following as your user (root not required).
 
@@ -57,20 +59,7 @@ Get status:
 
 Start set of VM's:
 
-`$ vagrant up tower dev0`
-
-Update hosts files:
-
-`$ vagrant hostmanager`
-
-Re-run provision scripts to update Ansible hosts:
-*All ip addresses are listed.*
-
-`$ vagrant provision tower`
-
-Bounce servers to disable SELinux (unfortunate for now):
-
-`$ vagrant reload dev0`
+`$ vagrant up tower`
 
 Login to Ansible Tower server and change to root. 
 *The login message provides the url, username and password for Ansible Tower web service.*
@@ -78,14 +67,69 @@ Login to Ansible Tower server and change to root.
 `$ vagrant ssh tower`
 
 On server *tower* change to root and run ansible ping module to connect to all nodes.
-*Execute as root on server 'tower'.*  Type yes and press return three times:
+*Execute as root on server 'tower'.*  Type yes and press return:
 
 ```
 tower$ sudo su -
-tower$ ansible all -m ping   #  * type yes then enter twice *
+tower$ ansible all -m ping   #  * type yes then enter *
 ```
 
+#### Spin up Client VM's
+
+Change to *ansible-tower* directory and run the following as your user (root not required).
+
+Get status:
+
+`$ vagrant status`
+
+Start set of VM's:
+
+`$ vagrant up cent7s0 cent6s0`
+
+Bounce servers to disable SELinux (unfortunate for now):
+
+`$ vagrant reload cent7s0 cent6s0`
+
+
+#### Update system hosts and ansible hosts
+
+*** _Run this each time a VM is created or destroyed_ ***
+
+The hosts info must be updated and ssh keys configured.  Change to *ansible-tower* directory and run the following as your user (root not required).
+
+Update hosts files:
+
+`$ vagrant hostmanager`
+
+Re-run provision scripts to update Ansible hosts:
+
+`$ vagrant provision tower`
+
+
 ## Develop
+
+Log on to the tower server.  Update your git identity.
+
+```
+root@tower ~ $ git config --global user.name "John Doe"
+root@tower ~ $ git config --global user.email johndoe@example.com
+```
+
+Change to your desired location and clone some repo for development.
+
+```
+root@tower ~ $ cd /etc/ansible
+root@tower /etc/ansible $ git clone https://github.com/<user>/<repo>.git
+```
+
+Develop and test using tower server as control node.  Enjoy git branch status in prompt.
+
+```
+root@tower /etc/ansible $ cd my-repo
+root@tower /etc/ansible/my-repo (mybranch *) $
+```
+
+## Demo
 
 The ansible repo available from tower server at */vagrant/config*.
 This is a shared directory to directory where Vagrantfile resides on host.
@@ -135,6 +179,7 @@ URL:  http://<wordpress0_ip>
 ```
 
 ## Destruction
+
 #### Stop VM's
 
 Stop VM's:
