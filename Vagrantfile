@@ -42,16 +42,16 @@ Vagrant.configure("2") do |config|
     ##if Vagrant.has_plugin? 'vagrant-hostmanager'
     ##  system "vagrant hostmanager"
     ##end
+    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
     node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bc"
-    #node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
-    #node.vm.provision :shell, path:   "config/gitconfiger.pl"
+    node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
+    node.vm.provision :shell, path:   "config/gitconfiger.pl"
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
     node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     node.vm.provision :shell, inline: "/bin/yum -y install python2-pip"
     node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
-    node.vm.provision :shell, inline: "[[ -f /etc/yum.repos.d/epel-7.repo ]] && /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
   end
 
   ##########  CentOS 7 VM's  ##########   
