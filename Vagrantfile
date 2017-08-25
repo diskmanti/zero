@@ -71,13 +71,13 @@ Vagrant.configure("2") do |config|
       :ram      => 1024,
     },
     #{
-    #  :hostname => 'dbserver0',
+    #  :hostname => 'db0',
     #  :box      => 'centos/7',
     #  :cpu      => 1,
     #  :ram      => 1024,
     #},
     #{
-    #  :hostname => 'webserver0',
+    #  :hostname => 'web0',
     #  :box      => 'centos/7',
     #  :cpu      => 1,
     #  :ram      => 1024,

@@ -47,7 +47,7 @@ HISTFILESIZE=1048576000
 HISTSIZE=
 
 # Aliases
-alias ls="ls -G"
+alias ls="ls -G --color=auto"
 alias  l='ls -lF'
 alias ll='ls -AlF'
 
