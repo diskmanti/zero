@@ -1,4 +1,4 @@
-# ansible-tower
+# vagrant-tower
 
 Development environment for Ansible Tower using Vagrant and Virtualbox.
 Include VM definitions for Ansible Tower and clients running CentOS 6 & 7 and Ubuntu 14.
@@ -28,7 +28,7 @@ This development environment requires the following on the host machine (i.e. yo
 #### Clone repo
 Clone this repository to local host and change to directory.
 
-`$ git clone https://github.com/rcompos/ansible-tower`
+`$ git clone https://github.com/rcompos/vagrant-tower`
 
 #### Install Vagrant
 
@@ -51,7 +51,7 @@ Start-up lag can be remedied by pruning unwanted definitions.
 ## Setup
 #### Spin up Tower VM
 
-Change to *ansible-tower* directory and run the following as your user (root not required).
+Change to *vagrant-tower* directory and run the following as your user (root not required).
 
 Get status.
 
@@ -76,7 +76,7 @@ tower$ ansible all -m ping   #  * type yes then enter *
 
 #### Spin up Client VM's
 
-Change to *ansible-tower* directory and run the following as your user (root not required).
+Change to *vagrant-tower* directory and run the following as your user (root not required).
 
 Get status.
 
@@ -95,7 +95,7 @@ Bounce servers to disable SELinux (unfortunate for now).
 
 *** _Run this each time a VM is created or destroyed_ ***
 
-The hosts info must be updated and ssh keys configured.  Change to *ansible-tower* directory and run the following as your user (root not required).
+The hosts info must be updated and ssh keys configured.  Change to *vagrant-tower* directory and run the following as your user (root not required).
 
 Update hosts files.
 
@@ -137,7 +137,7 @@ This is a shared directory to directory where Vagrantfile resides on host.
 #### LAMP simple on CentOS 7 
 Vagrant up servers `webserver0` and `dbserver0`.  *Execute as root on server 'tower'*.
 
-See readme https://github.com/rcompos/ansible-tower/tree/master/demo/lamp_simple_rhel7-demo
+See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/lamp_simple_rhel7-demo
 
 ```
 tower$  cd /vagrant/demo/lamp_simple_rhel7-demo
@@ -148,7 +148,7 @@ URL:  http://<webserver0_ip>/index.php
 #### Tomcat on CentOS 7
 Vagrant up server `tomcat0`.  *Execute as root on server 'tower'*.
 
-See readme https://github.com/rcompos/ansible-tower/tree/master/demo/tomcat-standalone-demo
+See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/tomcat-standalone-demo
 
 ```
 tower$  cd /vagrant/demo/tomcat-standalone-demo
@@ -159,7 +159,7 @@ URL:  http://<tomcat0_ip>:8080
 #### MongoDB on CentOS 6 cluster
 Vagrant up servers `mongo1`, `mongo2`, `mongo3` and `mongo4`.  *Execute as root on server 'tower'*.
 
-See readme https://github.com/rcompos/ansible-tower/tree/master/demo/mongodb-demo
+See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/mongodb-demo
 
 ```
 tower$  cd /vagrant/demo/mongodb-demo
@@ -170,7 +170,7 @@ URL:  http://<mongo1_up>:????
 #### Wordpress Nginx on CentOS 7
 Vagrant up `wordpress0`.  *Execute as root on server 'tower'*.
 
-See readme https://github.com/rcompos/ansible-tower/tree/master/demo/wordpress-nginx_rhel7-demo
+See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/wordpress-nginx_rhel7-demo
 
 ```
 tower$  cd /vagrant/demo/wordpress-nginx_rhel7-demo
