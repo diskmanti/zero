@@ -1,0 +1,9 @@
+[webservers]
+#webserver.local
+webserver0
+
+[dbservers]
+#dbserver.local
+dbserver0
+
+

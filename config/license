@@ -1,0 +1,11 @@
+{
+    "company_name": "NA",
+    "contact_email": "rcompos@gmail.com",
+    "contact_name": "Ronald Compos",
+    "hostname": "13e060132af24bbd85a178f26e89045a",
+    "instance_count": 10,
+    "license_date": 2129951245,
+    "license_key": "1d10a185baef2356f9ac2846b0e1c072ad206bcbbaf75476e6665df0da311e53",
+    "license_type": "basic",
+    "subscription_name": "Ansible Tower by Red Hat, Self-Support (10 Managed Nodes)"
+}
