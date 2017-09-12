@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
     ##  system "vagrant hostmanager"
     ##end
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bc"
+    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bc bind-utils"
     node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
     node.vm.provision :shell, path:   "config/gitconfiger.pl"
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
