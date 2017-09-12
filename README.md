@@ -9,7 +9,7 @@ The clients run *centos/6*, *centos/7* and *ubuntu/trusty64*.
 
 ```
  ____________________________________
-<  The only good bug is a dead bug.  >
+<  The only good bug is a chocolate covered bug.  >
  ------------------------------------
         \   ^__^
          \  (oo)\_______
