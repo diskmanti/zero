@@ -18,6 +18,7 @@ Vagrant.configure("2") do |config|
   ##########  Ansible Tower  ##########   
 
   config.vm.define 'tower' do |node|
+
     node.vm.box = "ansible/tower"
     node.vm.hostname = 'tower'
     node.vm.provider :virtualbox do |vb|
@@ -25,11 +26,15 @@ Vagrant.configure("2") do |config|
       vb.customize ['modifyvm', :id, '--cpus', 2]
     end
     #node.vm.network :private_network, :auto_network => true
-    node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-    node.vm.provision :shell, inline: "cp /vagrant/config/id_rsa* /root/.ssh"
-    node.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-    node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-    node.vm.provision :shell, inline: "cp /vagrant/config/license /etc/tower/license"
+
+    node.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      cp /vagrant/config/id_rsa* /root/.ssh
+      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+      cp /vagrant/config/license /etc/tower/license
+    SETUP
+
     node.vm.provision :shell, path:   "config/hostwithmost.pl"
     node.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
@@ -40,19 +45,17 @@ Vagrant.configure("2") do |config|
       fi
       /bin/yum -y update
     SHELL
-    ##if Vagrant.has_plugin? 'vagrant-hostmanager'
-    ##  system "vagrant hostmanager"
-    ##end
+
+    ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bc bind-utils"
+    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bc bind-utils elinks lynx fortune-mod cowsay python2-pip"
+    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
     node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
     node.vm.provision :shell, path:   "config/gitconfiger.pl"
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
-    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-    node.vm.provision :shell, inline: "/bin/yum -y install python2-pip"
-    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
+
   end
 
   ##########  CentOS 7 VM's  ##########   
@@ -120,8 +123,9 @@ Vagrant.configure("2") do |config|
         fi
         yum -y update
       SHELL
-      #node.vm.provision :shell, inline: "perl -i -pe's/^SELINUX=enforcing\s+$/SELINUX=disabled\n/' /etc/selinux/config"
+      node.vm.provision :shell, inline: "echo hello world > /tmp/hello.txt"
       #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+      node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
       node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     end
