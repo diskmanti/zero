@@ -32,15 +32,6 @@ Vagrant.configure("2") do |config|
     end
     #node.vm.network :private_network, :auto_network => true
 
-    #node.vm.synced_folder "../src", "/src", create: true, owner: 'vagrant'
-    shared_folders.each do |shared|
-      hostdir  = shared[:host_dir]
-      guestdir = shared[:guest_dir]
-      create   = shared[:create]
-      owner    = shared[:owner]
-      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
       cp /vagrant/config/id_rsa* /root/.ssh
@@ -69,6 +60,15 @@ Vagrant.configure("2") do |config|
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+
+    #node.vm.synced_folder "../src", "/src", create: true, owner: 'vagrant'
+    shared_folders.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
 
   end
 
@@ -125,14 +125,6 @@ Vagrant.configure("2") do |config|
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
       end
       cent7.vm.network :private_network, :auto_network => true
-
-      shared_folders.each do |shared|
-        hostdir  = shared[:host_dir]
-        guestdir = shared[:guest_dir]
-        create   = shared[:create]
-        owner    = shared[:owner]
-        cent7.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-      end
  
       cent7.vm.provision :shell, inline: <<-SETUP
         if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
@@ -154,6 +146,15 @@ Vagrant.configure("2") do |config|
       cent7.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
       cent7.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       cent7.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+      cent7.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
+
+      shared_folders.each do |shared|
+        hostdir  = shared[:host_dir]
+        guestdir = shared[:guest_dir]
+        create   = shared[:create]
+        owner    = shared[:owner]
+        cent7.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+      end
 
     end
   end
@@ -209,14 +210,6 @@ Vagrant.configure("2") do |config|
       end
       cent6.vm.network :private_network, :auto_network => true
 
-      shared_folders.each do |shared|
-        hostdir  = shared[:host_dir]
-        guestdir = shared[:guest_dir]
-        create   = shared[:create]
-        owner    = shared[:owner]
-        cent6.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-      end
-
       cent6.vm.provision :shell, inline: <<-SETUP
         if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
         cp /vagrant/config/id_rsa* /root/.ssh
@@ -239,6 +232,14 @@ Vagrant.configure("2") do |config|
       #cent6.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
       cent6.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       cent6.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+
+      shared_folders.each do |shared|
+        hostdir  = shared[:host_dir]
+        guestdir = shared[:guest_dir]
+        create   = shared[:create]
+        owner    = shared[:owner]
+        cent6.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+      end
 
     end
   end
