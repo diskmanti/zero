@@ -1,7 +1,7 @@
 # vagrant-tower
 
 Development environment for Ansible Tower using Vagrant and Virtualbox.
-Include VM definitions for Ansible Tower and clients running CentOS 6 & 7 and Ubuntu 14.
+Include virtual machine definitions for Ansible Tower and clients running CentOS 6 & 7 and Ubuntu 14.
 
 The tower vm runs the latest vagrant box *ansible/tower*.
 
@@ -9,7 +9,7 @@ The clients run *centos/6*, *centos/7* and *ubuntu/trusty64*.
 
 ```
  ____________________________________
-<  The only good bug is a dead bug.  >
+<  The only good bug is a chocolate covered bug.  >
  ------------------------------------
         \   ^__^
          \  (oo)\_______
