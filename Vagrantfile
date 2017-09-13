@@ -26,6 +26,7 @@ Vagrant.configure("2") do |config|
       vb.customize ['modifyvm', :id, '--cpus', 2]
     end
     #node.vm.network :private_network, :auto_network => true
+    node.vm.synced_folder "../src", "/src"
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
@@ -101,6 +102,7 @@ Vagrant.configure("2") do |config|
 
   centos7vms.each do |machine|
     config.vm.define machine[:hostname] do |node|
+
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
       #node.vm.autostart = false
@@ -110,10 +112,15 @@ Vagrant.configure("2") do |config|
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
       end
       node.vm.network :private_network, :auto_network => true
-      node.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-      node.vm.provision :shell, inline: "cp /vagrant/config/id_rsa* /root/.ssh"
-      node.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-      node.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
+      node.vm.synced_folder "../src", "/src"
+ 
+      node.vm.provision :shell, inline: <<-SETUP
+        if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+        cp /vagrant/config/id_rsa* /root/.ssh
+        if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+        kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+      SETUP
+
       node.vm.provision :shell, inline: <<-SHELL 
         if rpm --quiet -q epel-release; then
           echo 'EPEL repo present'
@@ -123,11 +130,11 @@ Vagrant.configure("2") do |config|
         fi
         yum -y update
       SHELL
-      node.vm.provision :shell, inline: "echo hello world > /tmp/hello.txt"
-      #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
+
       node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
       node.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+
     end
   end
 
@@ -174,17 +181,23 @@ Vagrant.configure("2") do |config|
 
   centos6vms.each do |machine|
     config.vm.define machine[:hostname] do |centy|
+
       centy.vm.box = machine[:box]
       centy.vm.hostname = machine[:hostname]
       centy.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
       end
       centy.vm.network :private_network, :auto_network => true
-      centy.vm.provision :shell, inline: "if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi"
-      centy.vm.provision :shell, inline: "cp /vagrant/config/id_rsa* /root/.ssh"
-      centy.vm.provision :shell, inline: "if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi"
-      centy.vm.provision :shell, inline: "kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile"
-      centy.vm.provision :shell, inline: "restorecon -Rv ~/.ssh"
+      centy.vm.synced_folder "../src", "/src"
+
+      centy.vm.provision :shell, inline: <<-SETUP
+        if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+        cp /vagrant/config/id_rsa* /root/.ssh
+        if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+        kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+        restorecon -Rv ~/.ssh
+      SETUP
+
       centy.vm.provision :shell, inline: <<-SHELL 
         if rpm --quiet -q epel-release; then
           echo 'EPEL repo present'
@@ -194,10 +207,12 @@ Vagrant.configure("2") do |config|
         fi
         yum -y update
       SHELL
+
       centy.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
       #node.vm.provision :shell, inline: "[[ -f /etc/profile.d/motd.sh ]] || echo '/bin/fortune | /bin/cowsay' > /etc/profile.d/motd.sh"
       centy.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       centy.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+
     end
   end
 

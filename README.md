@@ -116,17 +116,20 @@ root@tower ~ $ git config --global user.email johndoe@example.com
 ```
 
 Change to your desired location and clone some repo for development.
+The */src* directory on the tower VM is shared from the host's filesystem at *../src* (directory named *src* in parent directory).
 
 ```
-root@tower ~ $ cd /etc/ansible
-root@tower /etc/ansible $ git clone https://github.com/<user>/<repo>.git
+root@tower ~ $ cd /src
+root@tower /src $ git clone https://github.com/<user>/<repo>.git
 ```
 
 Develop and test using tower server as control node.  Enjoy git branch status in prompt.
+All files in *src* are stored outside the vagrant-tower repo.
+The *src* directory will persist on host filesystem even if VM's are destroyed or the vagrant-tower repo is removed.
 
 ```
-root@tower /etc/ansible $ cd my-repo
-root@tower /etc/ansible/my-repo (mybranch *) $
+root@tower /sr $ cd my-repo
+root@tower /src/my-repo (mybranch *) $
 ```
 
 ## Demo
