@@ -29,6 +29,7 @@ This development environment requires the following on the host machine (i.e. yo
 Clone this repository to working directory on local host and change to directory.
 
 `$ git clone https://github.com/rcompos/vagrant-tower`
+
 `$ cd vagrant-tower`
 
 #### Install Vagrant
