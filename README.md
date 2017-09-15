@@ -26,16 +26,16 @@ This development environment requires the following on the host machine (i.e. yo
   - Git
 
 #### Clone repo
-Clone this repository to local host and change to directory.
+Clone this repository to working directory on local host and change to directory.
 
 `$ git clone https://github.com/rcompos/vagrant-tower`
+`$ cd vagrant-tower`
 
 #### Install Vagrant
 
 The Vagrant recommendation is to download installer from https://www.vagrantup.com/downloads.html
 
-*MacOS* Or you can run:
-`$ brew cask install vagrant`
+*MacOS*: `$ brew cask install vagrant`
 
 #### Install Vagrant Plugin(s)
 
