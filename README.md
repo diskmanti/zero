@@ -33,8 +33,9 @@ Clone this repository to local host and change to directory.
 #### Install Vagrant
 
 The Vagrant recommendation is to download installer from https://www.vagrantup.com/downloads.html
+
 *MacOS* Or you can run:
-`$ brew cask install slack`
+`$ brew cask install vagrant`
 
 #### Install Vagrant Plugin(s)
 
