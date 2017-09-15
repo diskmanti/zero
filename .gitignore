@@ -2,6 +2,4 @@
 .vagrant
 .DS_Store
 *~
-src/**
-tmp/**
-files/**/site.retry
+demo/**/site.retry
