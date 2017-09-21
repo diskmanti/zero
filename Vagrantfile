@@ -26,11 +26,11 @@ Vagrant.configure("2") do |config|
 
     node.vm.box = "ansible/tower"
     node.vm.hostname = 'tower'
+    #node.vm.network :private_network, :auto_network => true
     node.vm.provider :virtualbox do |vb|
       vb.customize ['modifyvm', :id, '--memory', 2048]
       vb.customize ['modifyvm', :id, '--cpus', 2]
     end
-    #node.vm.network :private_network, :auto_network => true
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
@@ -53,7 +53,7 @@ Vagrant.configure("2") do |config|
 
     ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bc bind-utils elinks lynx fortune-mod cowsay python2-pip"
+    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget"
     node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
     node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
     node.vm.provision :shell, path:   "config/gitconfiger.pl"
@@ -72,6 +72,52 @@ Vagrant.configure("2") do |config|
 
   end
 
+  ##########  Jenkins  ##########   
+
+  config.vm.define 'jenkins0' do |jenk|
+
+    jenk.vm.box = "centos/7"
+    jenk.vm.hostname = 'jenkins0'
+    jenk.vm.network :private_network, :auto_network => true
+    #jenk.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
+    jenk.vm.network 'forwarded_port', guest: 8080, host: 18080
+    jenk.vm.provider :virtualbox do |vb|
+      vb.customize ['modifyvm', :id, '--memory', 2048]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
+    end
+
+    jenk.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      cp /vagrant/config/id_rsa* /root/.ssh
+      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+    SETUP
+
+    jenk.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      fi
+      /bin/yum -y update
+    SHELL
+
+    jenk.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    jenk.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay"
+    jenk.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    jenk.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
+
+    shared_folders.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      jenk.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
+
+  end
+  
   ##########  CentOS 7 VM's  ##########   
 
   centos7vms = [
@@ -111,6 +157,12 @@ Vagrant.configure("2") do |config|
     #  :cpu      => 1,
     #  :ram      => 1024,
     #},
+    {
+      :hostname => 'gitlab0',
+      :box      => 'centos/7',
+      :cpu      => 1,
+      :ram      => 1024,
+    },
   ]
 
   centos7vms.each do |machine|
@@ -120,6 +172,7 @@ Vagrant.configure("2") do |config|
       cent7.vm.hostname = machine[:hostname]
       #cent7.vm.autostart = false
       #cent7.vm.network :'private_network', ip: '192.168.33.10'
+      cent7.vm.network 'forwarded_port', guest: 80, host: 8880, :auto_correct => true
       cent7.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -143,6 +196,7 @@ Vagrant.configure("2") do |config|
         yum -y update
       SHELL
 
+      cent7.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
       cent7.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
       cent7.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
       cent7.vm.provision :shell, path:   "config/fortune_cowsy.sh"
