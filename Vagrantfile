@@ -70,6 +70,8 @@ Vagrant.configure("2") do |config|
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
 
+    node.vm.provision :shell, inline: "/bin/ansible-tower-service stop"
+
   end
 
   ##########  Jenkins  ##########   
@@ -104,7 +106,7 @@ Vagrant.configure("2") do |config|
     SHELL
 
     jenk.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    jenk.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay"
+    jenk.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree"
     jenk.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     jenk.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
 
