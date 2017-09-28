@@ -70,7 +70,8 @@ Vagrant.configure("2") do |config|
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
 
-    node.vm.provision :shell, inline: "/bin/ansible-tower-service stop"
+    #node.vm.provision :shell, inline: "/bin/ansible-tower-service stop"
+    node.vm.provision :shell, inline: "ansible-tower-service stop; systemctl stop supervisord; systemctl disable supervisord"
 
   end
 
