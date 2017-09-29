@@ -75,6 +75,52 @@ Vagrant.configure("2") do |config|
 
   end
 
+  ##########  Docker  ##########   
+
+  config.vm.define 'docker0' do |docky|
+
+    docky.vm.box = "centos/7"
+    docky.vm.hostname = 'docker0'
+    docky.vm.network :private_network, :auto_network => true
+    #docky.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
+    docky.vm.network 'forwarded_port', guest: 8080, host: 18080
+    docky.vm.provider :virtualbox do |vb|
+      vb.customize ['modifyvm', :id, '--memory', 2048]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
+    end
+
+    docky.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      cp /vagrant/config/id_rsa* /root/.ssh
+      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+    SETUP
+
+    docky.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      fi
+      /bin/yum -y update
+    SHELL
+
+    docky.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    docky.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools docker kubernetes"
+    docky.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    docky.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
+
+    shared_folders_all.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      docky.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
+
+  end
+
   ##########  Jenkins  ##########   
 
   config.vm.define 'jenkins0' do |jenk|
