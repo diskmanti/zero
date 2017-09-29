@@ -178,8 +178,8 @@ Vagrant.configure("2") do |config|
     node.vm.network 'forwarded_port', guest: 8080, host: 18080
     node.vm.network 'forwarded_port', guest: 8088, host: 18088
     node.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 2048]
-      vb.customize ['modifyvm', :id, '--cpus', 2]
+      vb.customize ['modifyvm', :id, '--memory', 1024]
+      vb.customize ['modifyvm', :id, '--cpus', 1]
     end
 
     node.vm.provision :shell, inline: <<-SETUP
@@ -225,8 +225,8 @@ Vagrant.configure("2") do |config|
     #node.vm.network 'forwarded_port', guest: 8080, host: 18080
     #node.vm.network 'forwarded_port', guest: 8088, host: 18088
     node.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 2048]
-      vb.customize ['modifyvm', :id, '--cpus', 2]
+      vb.customize ['modifyvm', :id, '--memory', 1024]
+      vb.customize ['modifyvm', :id, '--cpus', 1]
     end
 
     node.vm.provision :shell, inline: <<-SETUP
