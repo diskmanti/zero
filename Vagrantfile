@@ -107,7 +107,7 @@ Vagrant.configure("2") do |config|
     SHELL
 
     docky.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    docky.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools docker kubernetes"
+    docky.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
     docky.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     docky.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
 
@@ -118,6 +118,12 @@ Vagrant.configure("2") do |config|
       owner    = shared[:owner]
       docky.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
+
+    docky.vm.provision :shell, inline: <<-LLEHS
+      yum install -y yum-utils device-mapper-persistent-data lvm2
+      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      yum install -y docker-ce
+    LLEHS
 
   end
 
