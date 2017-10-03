@@ -1,7 +1,9 @@
-# vagrant-tower
+# vagrant-zero
 
-Development environment for Ansible Tower using Vagrant and Virtualbox.
-Include virtual machine definitions for Ansible Tower and clients running CentOS 6 & 7 and Ubuntu 14.
+Development environment using Vagrant and Virtualbox.
+Include virtual machine definitions for clients running CentOS 6 & 7 and Ubuntu 14.
+
+The control vm zero vm runs CentOS 7 and includes a GUI.
 
 The tower vm runs the latest vagrant box *ansible/tower*.
 
@@ -9,7 +11,7 @@ The clients run *centos/6*, *centos/7* and *ubuntu/trusty64*.
 
 ```
  ____________________________________
-<  The only good bug is a chocolate covered bug.  >
+<  The only good bug is a dead bug.  >
  ------------------------------------
         \   ^__^
          \  (oo)\_______
@@ -28,9 +30,9 @@ This development environment requires the following on the host machine (i.e. yo
 #### Clone repo
 Clone this repository to working directory on local host and change to directory.
 
-`$ git clone https://github.com/rcompos/vagrant-tower`
+`$ git clone https://github.com/rcompos/vagrant-zero`
 
-`$ cd vagrant-tower`
+`$ cd vagrant-zero`
 
 #### Install Vagrant
 
@@ -53,9 +55,9 @@ A large number of VM definitions which adds some notable lag to Vagrant start-up
 Start-up lag can be remedied by pruning unwanted definitions.
 
 ## Setup
-#### Spin up Tower VM
+#### Spin up Control VM
 
-Change to *vagrant-tower* directory and run the following as your user (root not required).
+Change to *vagrant-zero* directory and run the following as your user (root not required).
 
 Get status.
 
@@ -63,24 +65,23 @@ Get status.
 
 Start set of VM's.
 
-`$ vagrant up tower`
+`$ vagrant up zero`
 
-Login to Ansible Tower server and change to root. 
-*The login message provides the url, username and password for Ansible Tower web service.*
+Login to control server and change to root. 
 
-`$ vagrant ssh tower`
+`$ vagrant ssh zero`
 
-On server *tower* change to root and run ansible ping module to connect to all nodes.
-*Execute as root on server 'tower'.*  Type yes and press return.
+On server *zero* change to root and run ansible ping module to connect to all nodes.
+*Execute as root on server 'zero'.*  Type yes and press return.
 
 ```
-tower$ sudo su -
-tower$ ansible all -m ping   #  * type yes then enter *
+zero$ sudo su -
+zero$ ansible all -m ping   #  * type yes then enter *
 ```
 
 #### Spin up Client VM's
 
-Change to *vagrant-tower* directory and run the following as your user (root not required).
+Change to *vagrant-zero* directory and run the following as your user (root not required).
 
 Get status.
 
@@ -99,7 +100,7 @@ Bounce servers to disable SELinux (unfortunate for now).
 
 *** _Run this each time a VM is created or destroyed_ ***
 
-The hosts info must be updated and ssh keys configured.  Change to *vagrant-tower* directory and run the following as your user (root not required).
+The hosts info must be updated and ssh keys configured.  Change to *vagrant-zero* directory and run the following as your user (root not required).
 
 Update hosts files.
 
@@ -107,81 +108,81 @@ Update hosts files.
 
 Re-run provision scripts to update Ansible hosts.
 
-`$ vagrant provision tower`
+`$ vagrant provision zero`
 
 
 ## Develop
 
-Log on to the tower server.  Update your git identity.
+Log on to the zero server.  Update your git identity.
 
 ```
-root@tower ~ $ git config --global user.name "John Doe"
-root@tower ~ $ git config --global user.email johndoe@example.com
+root@zero ~ $ git config --global user.name "John Doe"
+root@zero ~ $ git config --global user.email johndoe@example.com
 ```
 
 Change to your desired location and clone some repo for development.
-The */src* directory on the tower VM is shared from the host's filesystem at *../src* (directory named *src* in parent directory).
+The */src* directory on the control VM is shared from the host's filesystem at *../src* (directory named *src* in parent directory).
 
 ```
-root@tower ~ $ cd /src
-root@tower /src $ git clone https://github.com/<user>/<repo>.git
+root@zero ~ $ cd /src
+root@zero /src $ git clone https://github.com/<user>/<repo>.git
 ```
 
-Develop and test using tower server as control node.  Enjoy git branch status in prompt.
-All files in *src* are stored outside the vagrant-tower repo.
-The *src* directory will persist on host filesystem even if VM's are destroyed or the vagrant-tower repo is removed.
+Develop and test using server zero as control node.  Enjoy git branch status in prompt.
+All files in *src* are stored outside the vagrant-zero repo.
+The *src* directory will persist on host filesystem even if VM's are destroyed or the vagrant-zero repo is removed.
 
 ```
-root@tower /sr $ cd my-repo
-root@tower /src/my-repo (mybranch *) $
+root@zero /sr $ cd my-repo
+root@zero /src/my-repo (mybranch *) $
 ```
 
 ## Demo
 
-The ansible repo available from tower server at */vagrant/config*.
+The ansible repo available from zero server at */vagrant/config*.
 This is a shared directory to directory where Vagrantfile resides on host.
 
 #### LAMP simple on CentOS 7 
-Vagrant up servers `webserver0` and `dbserver0`.  *Execute as root on server 'tower'*.
+Vagrant up servers `webserver0` and `dbserver0`.  *Execute as root on server 'zero'*.
 
-See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/lamp_simple_rhel7-demo
+See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/lamp_simple_rhel7-demo
 
 ```
-tower$  cd /vagrant/demo/lamp_simple_rhel7-demo
-tower$  ansible-playbook -i hosts site.yml
+zero$  cd /vagrant/demo/lamp_simple_rhel7-demo
+zero$  ansible-playbook -i hosts site.yml
 URL:  http://<webserver0_ip>/index.php
 ```
 
 #### Tomcat on CentOS 7
-Vagrant up server `tomcat0`.  *Execute as root on server 'tower'*.
+Vagrant up server `tomcat0`.  *Execute as root on server 'zero'*.
 
-See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/tomcat-standalone-demo
+See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/tomcat-standalone-demo
 
 ```
-tower$  cd /vagrant/demo/tomcat-standalone-demo
-tower$  ansible-playbook -i hosts site.yml
+zero$  cd /vagrant/demo/tomcat-standalone-demo
+zero$  ansible-playbook -i hosts site.yml
 URL:  http://<tomcat0_ip>:8080
 ```
 
 #### MongoDB on CentOS 6 cluster
-Vagrant up servers `mongo1`, `mongo2`, `mongo3` and `mongo4`.  *Execute as root on server 'tower'*.
+Vagrant up servers `mongo1`, `mongo2`, `mongo3` and `mongo4`.  *Execute as root on server 'zero'*.
 
-See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/mongodb-demo
+See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/mongodb-demo
 
 ```
-tower$  cd /vagrant/demo/mongodb-demo
-tower$  ansible-playbook -i hosts site.yml
+zero$  cd /vagrant/demo/mongodb-demo
+zero$  ansible-playbook -i hosts site.yml
 URL:  http://<mongo1_up>:????
 ```
 
 #### Wordpress Nginx on CentOS 7
-Vagrant up `wordpress0`.  *Execute as root on server 'tower'*.
+Vagrant up `wordpress0`.  *Execute as root on server 'zero'*.
 
-See readme https://github.com/rcompos/vagrant-tower/tree/master/demo/wordpress-nginx_rhel7-demo
+See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/wordpress-nginx_rhel7-demo
 
 ```
-tower$  cd /vagrant/demo/wordpress-nginx_rhel7-demo
-tower$  ansible-playbook -i hosts site.yml
+zero$  cd /vagrant/demo/wordpress-nginx_rhel7-demo
+zero$  ansible-playbook -i hosts site.yml
 URL:  http://<wordpress0_ip>
 ```
 
@@ -195,7 +196,7 @@ Stop VM's.
 
 #### Destroy VM's to abandon or rebuild
 
-`$ vagrant destroy -f tower dbserver webserver`
+`$ vagrant destroy -f zero dbserver webserver`
 
 ## Helpful Commands
 
@@ -205,7 +206,7 @@ Start all VM's.
 
 Start single VM.
 
-`$ vagrant up tower`
+`$ vagrant up zero`
 
 Start multiple VM's.
 
