@@ -53,6 +53,7 @@ Vagrant.configure("2") do |config|
 
     ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
     node.vm.provision :shell, inline: "yum -y install git bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools ansible"
     node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
     node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
@@ -106,6 +107,7 @@ Vagrant.configure("2") do |config|
     SHELL
 
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
     node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
@@ -160,6 +162,7 @@ Vagrant.configure("2") do |config|
     SHELL
 
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
     node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
@@ -212,6 +215,7 @@ Vagrant.configure("2") do |config|
     SHELL
 
     jenk.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    jenk.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
     jenk.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
     jenk.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     jenk.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
