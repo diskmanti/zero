@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
 
   shared_folders_all = [
-    { :host_dir => 'srv', :guest_dir => '/srv', :create => 'false', :owner => 'vagrant', },
+    { :host_dir => 'srv', :guest_dir => '/src', :create => 'false', :owner => 'vagrant', },
   ]
 
   ##########  Zero  ##########   
@@ -27,6 +27,7 @@ Vagrant.configure("2") do |config|
     node.vm.hostname = 'zero'
     #node.vm.network :private_network, :auto_network => true
     node.vm.provider :virtualbox do |vb|
+      vb.gui = true
       vb.customize ['modifyvm', :id, '--memory', 2048]
       vb.customize ['modifyvm', :id, '--cpus', 2]
       vb.customize ['modifyvm', :id, '--vram', 128]
@@ -52,14 +53,15 @@ Vagrant.configure("2") do |config|
 
     ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: "yum -y install git bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools"
+    node.vm.provision :shell, inline: "yum -y install git bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools ansible"
     node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
     node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
     node.vm.provision :shell, path:   "config/gitconfiger.pl"
     node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-    node.vm.provision :shell, inline: "yum group install -y 'GNOME Desktop" "Graphical Administration Tools'"
+    node.vm.provision :shell, inline: "yum group install -y 'GNOME Desktop' 'Graphical Administration Tools'"
+    node.vm.provision :shell, inline: "systemctl set-default graphical.target"
 
     #node.vm.synced_folder "srv", "/srv", create: true, owner: 'vagrant'
     shared_folders_all.each do |shared|
@@ -74,26 +76,26 @@ Vagrant.configure("2") do |config|
 
   ##########  Docker  ##########   
 
-  config.vm.define 'docker0' do |docky|
+  config.vm.define 'docker0' do |node|
 
-    docky.vm.box = "centos/7"
-    docky.vm.hostname = 'docker0'
-    docky.vm.network :private_network, :auto_network => true
-    #docky.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
-    docky.vm.network 'forwarded_port', guest: 8080, host: 18080
-    docky.vm.provider :virtualbox do |vb|
+    node.vm.box = "centos/7"
+    node.vm.hostname = 'docker0'
+    node.vm.network :private_network, :auto_network => true
+    #node.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
+    #node.vm.network 'forwarded_port', guest: 8080, host: 18080
+    node.vm.provider :virtualbox do |vb|
       vb.customize ['modifyvm', :id, '--memory', 2048]
       vb.customize ['modifyvm', :id, '--cpus', 2]
     end
 
-    docky.vm.provision :shell, inline: <<-SETUP
+    node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
       cp /vagrant/config/id_rsa* /root/.ssh
       if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
       kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
     SETUP
 
-    docky.vm.provision :shell, inline: <<-SHELL 
+    node.vm.provision :shell, inline: <<-SHELL 
       if rpm --quiet -q epel-release; then
         echo 'EPEL repo present'
       else
@@ -103,24 +105,77 @@ Vagrant.configure("2") do |config|
       /bin/yum -y update
     SHELL
 
-    docky.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    docky.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
-    docky.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-    docky.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
+    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
+    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
 
     shared_folders_all.each do |shared|
       hostdir  = shared[:host_dir]
       guestdir = shared[:guest_dir]
       create   = shared[:create]
       owner    = shared[:owner]
-      docky.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
 
-    docky.vm.provision :shell, inline: <<-LLEHS
+    node.vm.provision :shell, inline: <<-LLEHS
       yum install -y yum-utils device-mapper-persistent-data lvm2
       yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
       yum install -y docker-ce
+      systemctl enable docker
       systemctl start docker
+    LLEHS
+
+  end
+
+  ##########  MariaDB  ##########   
+
+  config.vm.define 'mariadb0' do |node|
+
+    node.vm.box = "centos/7"
+    node.vm.hostname = 'mariadb0'
+    node.vm.network :private_network, :auto_network => true
+    #node.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
+    #node.vm.network 'forwarded_port', guest: 8080, host: 18080
+    node.vm.provider :virtualbox do |vb|
+      vb.customize ['modifyvm', :id, '--memory', 2048]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
+    end
+
+    node.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      cp /vagrant/config/id_rsa* /root/.ssh
+      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+    SETUP
+
+    node.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      fi
+      /bin/yum -y update
+    SHELL
+
+    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
+    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
+
+    shared_folders_all.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
+
+    node.vm.provision :shell, inline: <<-LLEHS
+      yum install -y mariadb-server
+      systemctl enable mariadb
+      systemctl start mariadb
     LLEHS
 
   end
@@ -234,8 +289,8 @@ Vagrant.configure("2") do |config|
     node.vm.hostname = 'cent7s0'
     node.vm.network :private_network, :auto_network => true
     #node.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
-    node.vm.network 'forwarded_port', guest: 8080, host: 18080
-    node.vm.network 'forwarded_port', guest: 8088, host: 18088
+    #node.vm.network 'forwarded_port', guest: 8080, host: 18080
+    #node.vm.network 'forwarded_port', guest: 8088, host: 18088
     node.vm.provider :virtualbox do |vb|
       vb.customize ['modifyvm', :id, '--memory', 1024]
       vb.customize ['modifyvm', :id, '--cpus', 1]
