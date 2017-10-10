@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
 
     node.vm.box = "centos/7"
     node.vm.hostname = 'zero'
-    #node.vm.network :private_network, :auto_network => true
+    node.vm.network :private_network, :auto_network => true
     node.vm.provider :virtualbox do |vb|
       vb.gui = true
       vb.customize ['modifyvm', :id, '--memory', 2048]
@@ -75,7 +75,7 @@ Vagrant.configure("2") do |config|
 
   end
 
-  ##########  Docker  ##########   
+  ##########  Docker0  ##########   
 
   config.vm.define 'docker0' do |node|
 
@@ -108,7 +108,7 @@ Vagrant.configure("2") do |config|
 
     node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
     node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
+    node.vm.provision :shell, inline: "/bin/yum -y install git fortune-mod cowsay tree bind-utils net-tools"
     node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
     node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
 
@@ -130,271 +130,136 @@ Vagrant.configure("2") do |config|
 
   end
 
-  ##########  MariaDB  ##########   
+#  ##########  Ansible Tower  ##########   
+#
+#  config.vm.define 'tower' do |node|
+#
+#    node.vm.box = "ansible/tower"
+#    node.vm.hostname = 'tower'
+#    #node.vm.network :private_network, :auto_network => true
+#    node.vm.provider :virtualbox do |vb|
+#      vb.customize ['modifyvm', :id, '--memory', 2048]
+#      vb.customize ['modifyvm', :id, '--cpus', 2]
+#    end
+#
+#    node.vm.provision :shell, inline: <<-SETUP
+#      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+#      cp /vagrant/config/id_rsa* /root/.ssh
+#      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+#      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+#      cp /vagrant/config/license /etc/tower/license
+#    SETUP
+#
+#    node.vm.provision :shell, path:   "config/hostwithmost.pl"
+#    node.vm.provision :shell, inline: <<-SHELL 
+#      if rpm --quiet -q epel-release; then
+#        echo 'EPEL repo present'
+#      else
+#        echo 'Adding EPEL repo'
+#        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#      fi
+#      /bin/yum -y update
+#    SHELL
+#
+#    ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
+#    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+#    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools"
+#    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
+#    node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
+#    node.vm.provision :shell, path:   "config/gitconfiger.pl"
+#    node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
+#    node.vm.provision :shell, path:   "config/bashrc_mod.pl"
+#    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+#
+#    #node.vm.synced_folder "../src", "/src", create: true, owner: 'vagrant'
+#    shared_folders_all.each do |shared|
+#      hostdir  = shared[:host_dir]
+#      guestdir = shared[:guest_dir]
+#      create   = shared[:create]
+#      owner    = shared[:owner]
+#      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+#    end
+#
+#    #node.vm.provision :shell, inline: "/bin/ansible-tower-service stop"
+#    #node.vm.provision :shell, inline: "ansible-tower-service stop; systemctl stop supervisord; systemctl disable supervisord"
+#
+#  end
 
-  config.vm.define 'mariadb0' do |node|
-
-    node.vm.box = "centos/7"
-    node.vm.hostname = 'mariadb0'
-    node.vm.network :private_network, :auto_network => true
-    #node.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
-    #node.vm.network 'forwarded_port', guest: 8080, host: 18080
-    node.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 2048]
-      vb.customize ['modifyvm', :id, '--cpus', 2]
-    end
-
-    node.vm.provision :shell, inline: <<-SETUP
-      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-      cp /vagrant/config/id_rsa* /root/.ssh
-      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-    SETUP
-
-    node.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      fi
-      /bin/yum -y update
-    SHELL
-
-    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
-    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-    node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
-
-    shared_folders_all.each do |shared|
-      hostdir  = shared[:host_dir]
-      guestdir = shared[:guest_dir]
-      create   = shared[:create]
-      owner    = shared[:owner]
-      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
-    node.vm.provision :shell, inline: <<-LLEHS
-      yum install -y mariadb-server
-      systemctl enable mariadb
-      systemctl start mariadb
-    LLEHS
-
-  end
-
-  ##########  Jenkins  ##########   
-
-  config.vm.define 'jenkins0' do |jenk|
-
-    jenk.vm.box = "centos/7"
-    jenk.vm.hostname = 'jenkins0'
-    jenk.vm.network :private_network, :auto_network => true
-    #jenk.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
-    jenk.vm.network 'forwarded_port', guest: 8080, host: 18080
-    jenk.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 2048]
-      vb.customize ['modifyvm', :id, '--cpus', 2]
-    end
-
-    jenk.vm.provision :shell, inline: <<-SETUP
-      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-      cp /vagrant/config/id_rsa* /root/.ssh
-      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-    SETUP
-
-    jenk.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      fi
-      /bin/yum -y update
-    SHELL
-
-    jenk.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    jenk.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-    jenk.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree bind-utils net-tools"
-    jenk.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-    jenk.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
-
-    shared_folders_all.each do |shared|
-      hostdir  = shared[:host_dir]
-      guestdir = shared[:guest_dir]
-      create   = shared[:create]
-      owner    = shared[:owner]
-      jenk.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
-  end
-
-  ##########  Ansible Tower  ##########   
-
-  config.vm.define 'tower' do |node|
-
-    node.vm.box = "ansible/tower"
-    node.vm.hostname = 'tower'
-    #node.vm.network :private_network, :auto_network => true
-    node.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 2048]
-      vb.customize ['modifyvm', :id, '--cpus', 2]
-    end
-
-    node.vm.provision :shell, inline: <<-SETUP
-      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-      cp /vagrant/config/id_rsa* /root/.ssh
-      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-      cp /vagrant/config/license /etc/tower/license
-    SETUP
-
-    node.vm.provision :shell, path:   "config/hostwithmost.pl"
-    node.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      fi
-      /bin/yum -y update
-    SHELL
-
-    ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
-    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: "/bin/yum -y install bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools"
-    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
-    node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
-    node.vm.provision :shell, path:   "config/gitconfiger.pl"
-    node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
-    node.vm.provision :shell, path:   "config/bashrc_mod.pl"
-    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-
-    #node.vm.synced_folder "../src", "/src", create: true, owner: 'vagrant'
-    shared_folders_all.each do |shared|
-      hostdir  = shared[:host_dir]
-      guestdir = shared[:guest_dir]
-      create   = shared[:create]
-      owner    = shared[:owner]
-      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
-    #node.vm.provision :shell, inline: "/bin/ansible-tower-service stop"
-    #node.vm.provision :shell, inline: "ansible-tower-service stop; systemctl stop supervisord; systemctl disable supervisord"
-
-  end
-
-  ##########  Cent7s0  ##########   
-
-  config.vm.define 'cent7s0' do |node|
-
-    node.vm.box = "centos/7"
-    node.vm.hostname = 'cent7s0'
-    node.vm.network :private_network, :auto_network => true
-    #node.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
-    #node.vm.network 'forwarded_port', guest: 8080, host: 18080
-    #node.vm.network 'forwarded_port', guest: 8088, host: 18088
-    node.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 1024]
-      vb.customize ['modifyvm', :id, '--cpus', 1]
-    end
-
-    node.vm.provision :shell, inline: <<-SETUP
-      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-      cp /vagrant/config/id_rsa* /root/.ssh
-      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-    SETUP
-
-    node.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      fi
-      /bin/yum -y update
-    SHELL
-
-    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree"
-    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-    node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
-
-    shared_folders_all.each do |shared|
-      hostdir  = shared[:host_dir]
-      guestdir = shared[:guest_dir]
-      create   = shared[:create]
-      owner    = shared[:owner]
-      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
-  end
-
-  ##########  Cent7s1  ##########   
-
-  config.vm.define 'cent7s1' do |node|
-
-    node.vm.box = "centos/7"
-    node.vm.hostname = 'cent7s1'
-    node.vm.network :private_network, :auto_network => true
-    #node.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
-    #node.vm.network 'forwarded_port', guest: 8080, host: 18080
-    #node.vm.network 'forwarded_port', guest: 8088, host: 18088
-    node.vm.provider :virtualbox do |vb|
-      vb.customize ['modifyvm', :id, '--memory', 1024]
-      vb.customize ['modifyvm', :id, '--cpus', 1]
-    end
-
-    node.vm.provision :shell, inline: <<-SETUP
-      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-      cp /vagrant/config/id_rsa* /root/.ssh
-      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-    SETUP
-
-    node.vm.provision :shell, inline: <<-SHELL 
-      if rpm --quiet -q epel-release; then
-        echo 'EPEL repo present'
-      else
-        echo 'Adding EPEL repo'
-        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      fi
-      /bin/yum -y update
-    SHELL
-
-    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree"
-    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-    node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
-
-    shared_folders_all.each do |shared|
-      hostdir  = shared[:host_dir]
-      guestdir = shared[:guest_dir]
-      create   = shared[:create]
-      owner    = shared[:owner]
-      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
-  end
-
+#  ##########  Cent7s9  ##########   
+#
+#  config.vm.define 'cent7s9' do |node|
+#
+#    node.vm.box = "centos/7"
+#    node.vm.hostname = 'cent7s9'
+#    #node.vm.autostart = false
+#    node.vm.network :private_network, :auto_network => true
+#    #node.vm.network 'forwarded_port', guest: 8080, host: 8880, :auto_correct => true
+#    #node.vm.network 'forwarded_port', guest: 8080, host: 18080
+#    #node.vm.network 'forwarded_port', guest: 8088, host: 18088
+#    node.vm.provider :virtualbox do |vb|
+#      vb.customize ['modifyvm', :id, '--memory', 1024]
+#      vb.customize ['modifyvm', :id, '--cpus', 1]
+#    end
+#
+#    node.vm.provision :shell, inline: <<-SETUP
+#      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+#      cp /vagrant/config/id_rsa* /root/.ssh
+#      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+#      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+#    SETUP
+#
+#    node.vm.provision :shell, inline: <<-SHELL 
+#      if rpm --quiet -q epel-release; then
+#        echo 'EPEL repo present'
+#      else
+#        echo 'Adding EPEL repo'
+#        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#      fi
+#      /bin/yum -y update
+#    SHELL
+#
+#    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+#    node.vm.provision :shell, inline: "/bin/yum -y install fortune-mod cowsay tree"
+#    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+#    node.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
+#
+#    shared_folders_all.each do |shared|
+#      hostdir  = shared[:host_dir]
+#      guestdir = shared[:guest_dir]
+#      create   = shared[:create]
+#      owner    = shared[:owner]
+#      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+#    end
+#
+#  end
 
   ##########  CentOS 7 VM's  ##########   
 
   centos7vms = [
-    #{
-    #  :hostname => 'cent7s0',
-    #  :box      => 'centos/7',
-    #  :cpu      => 1,
-    #  :ram      => 1024,
-    #},
-    #{
-    #  :hostname => 'cent7s1',
-    #  :box      => 'centos/7',
-    #  :cpu      => 1,
-    #  :ram      => 1024,
-    #},
+    {
+      :hostname => 'cent7s0',
+      :box      => 'centos/7',
+      :cpu      => 2,
+      :ram      => 2048,
+    },
+    {
+      :hostname => 'cent7s1',
+      :box      => 'centos/7',
+      :cpu      => 2,
+      :ram      => 2048,
+    },
+    {
+      :hostname => 'cicd0',
+      :box      => 'centos/7',
+      :cpu      => 2,
+      :ram      => 4096,
+    },
+    {
+      :hostname => 'cicd1',
+      :box      => 'centos/7',
+      :cpu      => 2,
+      :ram      => 2048,
+    },
     #{
     #  :hostname => 'db0',
     #  :box      => 'centos/7',
@@ -419,12 +284,6 @@ Vagrant.configure("2") do |config|
     #  :cpu      => 1,
     #  :ram      => 1024,
     #},
-    {
-      :hostname => 'gitlab0',
-      :box      => 'centos/7',
-      :cpu      => 1,
-      :ram      => 1024,
-    },
   ]
 
   centos7vms.each do |machine|
@@ -432,9 +291,8 @@ Vagrant.configure("2") do |config|
 
       cent7.vm.box = machine[:box]
       cent7.vm.hostname = machine[:hostname]
-      #cent7.vm.autostart = false
       #cent7.vm.network :'private_network', ip: '192.168.33.10'
-      cent7.vm.network 'forwarded_port', guest: 80, host: 8880, :auto_correct => true
+      #cent7.vm.network 'forwarded_port', guest: 80, host: 8880, :auto_correct => true
       cent7.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -447,22 +305,6 @@ Vagrant.configure("2") do |config|
         if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
         kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
       SETUP
-
-      cent7.vm.provision :shell, inline: <<-SHELL 
-        if rpm --quiet -q epel-release; then
-          echo 'EPEL repo present'
-        else
-          echo 'Adding EPEL repo'
-          rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-        fi
-        yum -y update
-      SHELL
-
-      cent7.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-      cent7.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-      cent7.vm.provision :shell, inline: "yum -y install fortune-mod cowsay"
-      cent7.vm.provision :shell, path:   "config/fortune_cowsy.sh"
-      cent7.vm.provision :shell, inline: "systemctl enable firewalld && systemctl start firewalld"
 
       shared_folders_all.each do |shared|
         hostdir  = shared[:host_dir]
@@ -478,18 +320,18 @@ Vagrant.configure("2") do |config|
   ##########  CentOS 6 VM's  ##########   
 
   centos6vms = [
-    {
-      :hostname => 'cent6s0',
-      :box      => 'centos/6',
-      :cpu      => 1,
-      :ram      => 512,
-    },
-    {
-      :hostname => 'cent6s1',
-      :box      => 'centos/6',
-      :cpu      => 1,
-      :ram      => 512,
-    },
+    #{
+    #  :hostname => 'cent6s0',
+    #  :box      => 'centos/6',
+    #  :cpu      => 1,
+    #  :ram      => 1024,
+    #},
+    #{
+    #  :hostname => 'cent6s1',
+    #  :box      => 'centos/6',
+    #  :cpu      => 1,
+    #  :ram      => 1024,
+    #},
     #{
     #  :hostname => 'mongo1',
     #  :box      => 'centos/6',
