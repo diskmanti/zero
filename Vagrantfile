@@ -252,13 +252,13 @@ Vagrant.configure("2") do |config|
       :hostname => 'cicd0',
       :box      => 'centos/7',
       :cpu      => 2,
-      :ram      => 4096,
+      :ram      => 6134,
     },
     {
       :hostname => 'cicd1',
       :box      => 'centos/7',
       :cpu      => 2,
-      :ram      => 2048,
+      :ram      => 4096,
     },
     #{
     #  :hostname => 'db0',
