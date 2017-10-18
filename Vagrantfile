@@ -249,13 +249,25 @@ Vagrant.configure("2") do |config|
       :ram      => 2048,
     },
     {
+      :hostname => 'cent7s2',
+      :box      => 'centos/7',
+      :cpu      => 2,
+      :ram      => 4096,
+    },
+    {
       :hostname => 'cicd0',
       :box      => 'centos/7',
       :cpu      => 2,
-      :ram      => 6134,
+      :ram      => 6144,
     },
     {
       :hostname => 'cicd1',
+      :box      => 'centos/7',
+      :cpu      => 2,
+      :ram      => 4069,
+    },
+    {
+      :hostname => 'cicd2',
       :box      => 'centos/7',
       :cpu      => 2,
       :ram      => 4096,
