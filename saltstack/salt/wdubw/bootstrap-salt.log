@@ -1,0 +1,26 @@
+ *  INFO: Running version: 2017.08.17
+ *  INFO: Executed by: 
+ *  INFO: Command line: 'bootstrap-salt.sh -P -c /tmp -F -c /tmp -k /tmp/minion-seed-keys -C -M -N stable'
+
+ *  INFO: System Information:
+ *  INFO:   CPU:          GenuineIntel
+ *  INFO:   CPU Arch:     x86_64
+ *  INFO:   OS Name:      Linux
+ *  INFO:   OS Version:   4.4.0-87-generic
+ *  INFO:   Distribution: Ubuntu 16.04
+
+ *  INFO: Configuring master
+ *  INFO: Found function install_ubuntu_stable_deps
+ *  INFO: Found function config_salt
+ *  INFO: Found function preseed_master
+ *  INFO: Found function install_ubuntu_stable
+ *  INFO: Found function install_ubuntu_stable_post
+ *  INFO: Found function install_ubuntu_restart_daemons
+ *  INFO: Found function daemons_running
+ *  INFO: Found function install_ubuntu_check_services
+ *  INFO: Running config_salt()
+ *  WARN: Passing -C (config only) option implies -F (forced overwrite).
+ *  INFO: Running preseed_master()
+ *  INFO: Running install_ubuntu_restart_daemons()
+ *  INFO: Running daemons_running()
+ *  INFO: Salt configured!
