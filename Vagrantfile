@@ -32,9 +32,6 @@ Vagrant.configure("2") do |config|
       vb.customize ['modifyvm', :id, '--cpus', 2]
       vb.customize ['modifyvm', :id, '--vram', 128]
     end
-    #node.vm.synced_folder "saltstack/salt/", "/srv/salt"
-    node.vm.synced_folder "../srv/k8s-salt", "/srv/salt"
-    node.vm.synced_folder "saltstack/pillar/", "/srv/pillar"
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
@@ -75,34 +72,6 @@ Vagrant.configure("2") do |config|
       owner    = shared[:owner]
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
-
-    ### Salt Master ###
-    node.vm.provision :salt do |salt|
-      salt.master_config = "saltstack/etc/zero"
-      salt.master_key = "saltstack/keys/master_minion.pem"
-      salt.master_pub = "saltstack/keys/master_minion.pub"
-      salt.minion_key = "saltstack/keys/master_minion.pem"
-      salt.minion_pub = "saltstack/keys/master_minion.pub"
-      salt.seed_master = {
-                          "minion0" => "saltstack/keys/minion0.pub",
-                          "minion1" => "saltstack/keys/minion1.pub",
-                          "minion2" => "saltstack/keys/minion2.pub",
-                          "kube0"   => "saltstack/keys/kube0.pub",
-                          "kube1"   => "saltstack/keys/kube1.pub",
-                          "kube2"   => "saltstack/keys/kube2.pub",
-                          "xkube0"   => "saltstack/keys/xkube0.pub",
-                          "xkube1"   => "saltstack/keys/xkube1.pub",
-                          "xkube2"   => "saltstack/keys/xkube2.pub"
-                         }
-
-      salt.install_type = "stable"
-      salt.install_master = true
-      salt.no_minion = true
-      salt.verbose = true
-      salt.colorize = true
-      salt.bootstrap_options = "-P -c /tmp"
-    end
-    ### End Salt Master ###
 
   end
 
@@ -159,16 +128,6 @@ Vagrant.configure("2") do |config|
       create   = shared[:create]
       owner    = shared[:owner]
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
-    node.vm.provision :salt do |salt|
-      salt.minion_config = "saltstack/etc/#{node.vm.hostname}"
-      salt.minion_key = "saltstack/keys/#{node.vm.hostname}.pem"
-      salt.minion_pub = "saltstack/keys/#{node.vm.hostname}.pub"
-      salt.install_type = "stable"
-      salt.verbose = true
-      salt.colorize = true
-      salt.bootstrap_options = "-P -c /tmp"
     end
 
   end
@@ -228,16 +187,6 @@ Vagrant.configure("2") do |config|
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
 
-    node.vm.provision :salt do |salt|
-      salt.minion_config = "saltstack/etc/#{node.vm.hostname}"
-      salt.minion_key = "saltstack/keys/#{node.vm.hostname}.pem"
-      salt.minion_pub = "saltstack/keys/#{node.vm.hostname}.pub"
-      salt.install_type = "stable"
-      salt.verbose = true
-      salt.colorize = true
-      salt.bootstrap_options = "-P -c /tmp"
-    end
-
   end
 
   ##########  xkube1  ##########   
@@ -295,16 +244,6 @@ Vagrant.configure("2") do |config|
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
 
-    node.vm.provision :salt do |salt|
-      salt.minion_config = "saltstack/etc/#{node.vm.hostname}"
-      salt.minion_key = "saltstack/keys/#{node.vm.hostname}.pem"
-      salt.minion_pub = "saltstack/keys/#{node.vm.hostname}.pub"
-      salt.install_type = "stable"
-      salt.verbose = true
-      salt.colorize = true
-      salt.bootstrap_options = "-P -c /tmp"
-    end
-
   end
 
   ##########  xkube2  ##########   
@@ -360,16 +299,6 @@ Vagrant.configure("2") do |config|
       create   = shared[:create]
       owner    = shared[:owner]
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-    end
-
-    node.vm.provision :salt do |salt|
-      salt.minion_config = "saltstack/etc/#{node.vm.hostname}"
-      salt.minion_key = "saltstack/keys/#{node.vm.hostname}.pem"
-      salt.minion_pub = "saltstack/keys/#{node.vm.hostname}.pub"
-      salt.install_type = "stable"
-      salt.verbose = true
-      salt.colorize = true
-      salt.bootstrap_options = "-P -c /tmp"
     end
 
   end
@@ -526,57 +455,6 @@ Vagrant.configure("2") do |config|
         create   = shared[:create]
         owner    = shared[:owner]
         cent7.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-      end
-
-    end
-  end
-
-  ##########  Salt Minion VM's  ##########   
-
-  minions = [
-    { :hostname => 'minion0', :box      => 'centos/7', :cpu      => 1, :ram      => 1024, },
-    { :hostname => 'minion1', :box      => 'centos/7', :cpu      => 1, :ram      => 1024, },
-    { :hostname => 'minion2', :box      => 'centos/7', :cpu      => 1, :ram      => 1024, },
-    { :hostname => 'kube1',   :box      => 'centos/7', :cpu      => 2, :ram      => 2048, },
-    { :hostname => 'kube2',   :box      => 'centos/7', :cpu      => 2, :ram      => 2048, },
-    { :hostname => 'kube3',   :box      => 'centos/7', :cpu      => 2, :ram      => 2048, },
-  ]
-
-  minions.each do |machine|
-    config.vm.define machine[:hostname] do |node|
-
-      vmname = machine[:hostname]
-      node.vm.box = machine[:box]
-      node.vm.hostname = machine[:hostname]
-      node.vm.network "private_network", auto_network: true
-      node.vm.provider 'virtualbox' do |vb|
-        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
-        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
-      end
- 
-      node.vm.provision :shell, inline: <<-SETUP
-        if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-        cp /vagrant/config/id_rsa* /root/.ssh
-        if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-        kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-      SETUP
-
-      shared_folders_all.each do |shared|
-        hostdir  = shared[:host_dir]
-        guestdir = shared[:guest_dir]
-        create   = shared[:create]
-        owner    = shared[:owner]
-        node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-      end
-
-      node.vm.provision :salt do |salt|
-        salt.minion_config = "saltstack/etc/#{vmname}"
-        salt.minion_key = "saltstack/keys/#{vmname}.pem"
-        salt.minion_pub = "saltstack/keys/#{vmname}.pub"
-        salt.install_type = "stable"
-        salt.verbose = true
-        salt.colorize = true
-        salt.bootstrap_options = "-P -c /tmp"
       end
 
     end
