@@ -32,9 +32,6 @@ Vagrant.configure("2") do |config|
       vb.customize ['modifyvm', :id, '--cpus', 2]
       vb.customize ['modifyvm', :id, '--vram', 128]
     end
-    #node.vm.synced_folder "saltstack/salt/", "/srv/salt"
-    node.vm.synced_folder "../srv/k8s-salt", "/srv/salt"
-    node.vm.synced_folder "saltstack/pillar/", "/srv/pillar"
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
@@ -76,30 +73,180 @@ Vagrant.configure("2") do |config|
       node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
     end
 
-    ### Salt Master ###
-    node.vm.provision :salt do |salt|
-      salt.master_config = "saltstack/etc/zero"
-      salt.master_key = "saltstack/keys/master_minion.pem"
-      salt.master_pub = "saltstack/keys/master_minion.pub"
-      salt.minion_key = "saltstack/keys/master_minion.pem"
-      salt.minion_pub = "saltstack/keys/master_minion.pub"
-      salt.seed_master = {
-                          "minion0" => "saltstack/keys/minion0.pub",
-                          "minion1" => "saltstack/keys/minion1.pub",
-                          "minion2" => "saltstack/keys/minion2.pub",
-                         }
-      salt.install_type = "stable"
-      salt.install_master = true
-      salt.no_minion = true
-      salt.verbose = true
-      salt.colorize = true
-      salt.bootstrap_options = "-P -c /tmp"
+  end
+
+  ##########  kube0  ##########   
+
+  config.vm.define 'kube0' do |node|
+
+    node.vm.box = "centos/7"
+    node.vm.hostname = 'kube0'
+    node.vm.network "private_network", auto_network: true
+    #node.vm.network "private_network", ip: '192.168.2.2'
+    node.vm.provider :virtualbox do |vb|
+      vb.gui = true
+      vb.customize ['modifyvm', :id, '--memory', 2048]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
+      vb.customize ['modifyvm', :id, '--vram', 128]
     end
-    ### End Salt Master ###
+
+    node.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      cp /vagrant/config/id_rsa* /root/.ssh
+      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+    SETUP
+
+    node.vm.provision :shell, path:   "config/hostwithmost.pl"
+    node.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      fi
+      #/bin/yum -y update
+    SHELL
+
+    ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
+    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
+    node.vm.provision :shell, inline: "yum -y install git bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools ansible"
+    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
+    node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
+    node.vm.provision :shell, path:   "config/gitconfiger.pl"
+    node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
+    node.vm.provision :shell, path:   "config/bashrc_mod.pl"
+    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    node.vm.provision :shell, inline: "yum group install -y 'GNOME Desktop' 'Graphical Administration Tools'"
+    node.vm.provision :shell, inline: "systemctl set-default graphical.target"
+
+    #node.vm.synced_folder "srv", "/srv", create: true, owner: 'vagrant'
+    shared_folders_all.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
 
   end
 
-  ##########  core01  ##########   
+  ##########  xkube0  ##########   
+
+  config.vm.define 'xkube0' do |node|
+
+    node.vm.box = "centos/7"
+    node.vm.hostname = 'xkube0'
+    node.vm.network "private_network", auto_network: true
+    #node.vm.network "private_network", ip: '192.168.2.2'
+    node.vm.provider :virtualbox do |vb|
+      vb.gui = true
+      vb.customize ['modifyvm', :id, '--memory', 4096]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
+      vb.customize ['modifyvm', :id, '--vram', 128]
+    end
+
+    node.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      cp /vagrant/config/id_rsa* /root/.ssh
+      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+    SETUP
+
+    node.vm.provision :shell, path:   "config/hostwithmost.pl"
+    node.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      fi
+      #/bin/yum -y update
+    SHELL
+
+    ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
+    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
+    node.vm.provision :shell, inline: "yum -y install git bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools ansible"
+    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
+    node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
+    node.vm.provision :shell, path:   "config/gitconfiger.pl"
+    node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
+    node.vm.provision :shell, path:   "config/bashrc_mod.pl"
+    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    node.vm.provision :shell, inline: "yum group install -y 'GNOME Desktop' 'Graphical Administration Tools'"
+    node.vm.provision :shell, inline: "systemctl set-default graphical.target"
+
+    #node.vm.synced_folder "srv", "/srv", create: true, owner: 'vagrant'
+    shared_folders_all.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
+
+  end
+
+  ##########  xkube1  ##########   
+
+  config.vm.define 'xkube1' do |node|
+
+    node.vm.box = "centos/7"
+    node.vm.hostname = 'xkube1'
+    node.vm.network "private_network", auto_network: true
+    #node.vm.network "private_network", ip: '192.168.2.2'
+    node.vm.provider :virtualbox do |vb|
+      #vb.gui = true
+      vb.customize ['modifyvm', :id, '--memory', 2048]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
+      vb.customize ['modifyvm', :id, '--vram', 128]
+    end
+
+    node.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      cp /vagrant/config/id_rsa* /root/.ssh
+      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+    SETUP
+
+    node.vm.provision :shell, path:   "config/hostwithmost.pl"
+    node.vm.provision :shell, inline: <<-SHELL 
+      if rpm --quiet -q epel-release; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      fi
+      #/bin/yum -y update
+    SHELL
+
+    ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
+    node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
+    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
+    node.vm.provision :shell, inline: "yum -y install git bash-completion tree bind-utils elinks lynx fortune-mod cowsay python2-pip wget net-tools ansible"
+    node.vm.provision :shell, inline: "/bin/pip install --disable-pip-version-check -q cryptography"
+    node.vm.provision :shell, inline: "[[ -f /root/.gitconfig ]] || touch /root/.gitconfig"
+    node.vm.provision :shell, path:   "config/gitconfiger.pl"
+    node.vm.provision :shell, inline: "[[ -f /root/.bashrc ]] || touch /root/.bashrc"
+    node.vm.provision :shell, path:   "config/bashrc_mod.pl"
+    node.vm.provision :shell, path:   "config/fortune_cowsy.sh"
+    node.vm.provision :shell, inline: "yum group install -y 'GNOME Desktop' 'Graphical Administration Tools'"
+    node.vm.provision :shell, inline: "systemctl set-default graphical.target"
+
+    #node.vm.synced_folder "srv", "/srv", create: true, owner: 'vagrant'
+    shared_folders_all.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
+
+  end
+
+  ##########  xkube2  ##########   
 
   config.vm.define 'core01' do |node|
 
@@ -282,54 +429,6 @@ Vagrant.configure("2") do |config|
         create   = shared[:create]
         owner    = shared[:owner]
         cent7.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-      end
-
-    end
-  end
-
-  ##########  Salt Minion VM's  ##########   
-
-  minions = [
-    { :hostname => 'minion0', :box      => 'centos/7', :cpu      => 1, :ram      => 1024, },
-    { :hostname => 'minion1', :box      => 'centos/7', :cpu      => 1, :ram      => 1024, },
-    { :hostname => 'minion2', :box      => 'centos/7', :cpu      => 1, :ram      => 1024, },
-  ]
-
-  minions.each do |machine|
-    config.vm.define machine[:hostname] do |node|
-
-      vmname = machine[:hostname]
-      node.vm.box = machine[:box]
-      node.vm.hostname = machine[:hostname]
-      node.vm.network "private_network", auto_network: true
-      node.vm.provider 'virtualbox' do |vb|
-        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
-        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
-      end
- 
-      node.vm.provision :shell, inline: <<-SETUP
-        if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-        cp /vagrant/config/id_rsa* /root/.ssh
-        if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-        kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-      SETUP
-
-      shared_folders_all.each do |shared|
-        hostdir  = shared[:host_dir]
-        guestdir = shared[:guest_dir]
-        create   = shared[:create]
-        owner    = shared[:owner]
-        node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-      end
-
-      node.vm.provision :salt do |salt|
-        salt.minion_config = "saltstack/etc/#{vmname}"
-        salt.minion_key = "saltstack/keys/#{vmname}.pem"
-        salt.minion_pub = "saltstack/keys/#{vmname}.pub"
-        salt.install_type = "stable"
-        salt.verbose = true
-        salt.colorize = true
-        salt.bootstrap_options = "-P -c /tmp"
       end
 
     end

@@ -137,55 +137,6 @@ root@zero /sr $ cd my-repo
 root@zero /src/my-repo (mybranch *) $
 ```
 
-## Demo
-
-The ansible repo available from zero server at */vagrant/config*.
-This is a shared directory to directory where Vagrantfile resides on host.
-
-#### LAMP simple on CentOS 7 
-Vagrant up servers `webserver0` and `dbserver0`.  *Execute as root on server 'zero'*.
-
-See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/lamp_simple_rhel7-demo
-
-```
-zero$  cd /vagrant/demo/lamp_simple_rhel7-demo
-zero$  ansible-playbook -i hosts site.yml
-URL:  http://<webserver0_ip>/index.php
-```
-
-#### Tomcat on CentOS 7
-Vagrant up server `tomcat0`.  *Execute as root on server 'zero'*.
-
-See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/tomcat-standalone-demo
-
-```
-zero$  cd /vagrant/demo/tomcat-standalone-demo
-zero$  ansible-playbook -i hosts site.yml
-URL:  http://<tomcat0_ip>:8080
-```
-
-#### MongoDB on CentOS 6 cluster
-Vagrant up servers `mongo1`, `mongo2`, `mongo3` and `mongo4`.  *Execute as root on server 'zero'*.
-
-See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/mongodb-demo
-
-```
-zero$  cd /vagrant/demo/mongodb-demo
-zero$  ansible-playbook -i hosts site.yml
-URL:  http://<mongo1_up>:????
-```
-
-#### Wordpress Nginx on CentOS 7
-Vagrant up `wordpress0`.  *Execute as root on server 'zero'*.
-
-See readme https://github.com/rcompos/vagrant-zero/tree/master/demo/wordpress-nginx_rhel7-demo
-
-```
-zero$  cd /vagrant/demo/wordpress-nginx_rhel7-demo
-zero$  ansible-playbook -i hosts site.yml
-URL:  http://<wordpress0_ip>
-```
-
 ## Destruction
 
 #### Stop VM's
