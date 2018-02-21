@@ -1,13 +1,8 @@
 # vagrant-zero
 
 Development environment using Vagrant and Virtualbox.
-Include virtual machine definitions for clients running CentOS 6 & 7 and Ubuntu 14.
 
-The control vm zero vm runs CentOS 7 and includes a GUI.
-
-The tower vm runs the latest vagrant box *ansible/tower*.
-
-The clients run *centos/6*, *centos/7* and *ubuntu/trusty64*.
+The control node zero runs CentOS 7 and includes a GUI.  It is designated as a jump host for the other VM's in the virtual private network.
 
 ```
  ____________________________________
@@ -89,11 +84,11 @@ Get status.
 
 Start set of VM's.
 
-`$ vagrant up cent7s0 cent6s0`
+`$ vagrant up zero cent7s0`
 
 Bounce servers to disable SELinux (unfortunate for now).
 
-`$ vagrant reload cent7s0 cent6s0`
+`$ vagrant reload zero cent7s0`
 
 
 #### Update system hosts and ansible hosts
@@ -147,7 +142,7 @@ Stop VM's.
 
 #### Destroy VM's to abandon or rebuild
 
-`$ vagrant destroy -f zero dbserver webserver`
+`$ vagrant destroy -f zero cent7s0`
 
 ## Helpful Commands
 

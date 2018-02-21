@@ -2,4 +2,4 @@
 .vagrant
 .DS_Store
 *~
-demo/**/site.retry
+*-console.log
