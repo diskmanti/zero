@@ -24,11 +24,11 @@ Vagrant.configure("2") do |config|
 
     node.vm.box = "centos/7"
     node.vm.hostname = 'zero'
-    #node.vm.network "private_network", auto_network: true
-    node.vm.network "public_network", ip: '192.168.1.50'
+    node.vm.network "private_network", auto_network: true
+    #node.vm.network "private_network", ip: '192.168.2.2'
     node.vm.provider :virtualbox do |vb|
       vb.gui = true
-      vb.customize ['modifyvm', :id, '--memory', 4096]
+      vb.customize ['modifyvm', :id, '--memory', 2048]
       vb.customize ['modifyvm', :id, '--cpus', 2]
       vb.customize ['modifyvm', :id, '--vram', 128]
     end
@@ -78,11 +78,11 @@ Vagrant.configure("2") do |config|
   ##########  k8s0  ##########   
 
   k8svms = [
-    { :hostname => 'k8s0', :ip => '192.168.1.60', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s1', :ip => '192.168.1.61', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s2', :ip => '192.168.1.62', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s3', :ip => '192.168.1.63', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s4', :ip => '192.168.1.64', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'k8s0', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 2048, :vram => 64, },
+    { :hostname => 'k8s1', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 2048, :vram => 64, },
+    { :hostname => 'k8s2', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 2048, :vram => 64, },
+    { :hostname => 'k8s3', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 2048, :vram => 64, },
+    { :hostname => 'k8s4', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 2048, :vram => 64, },
   ]
 
   k8svms.each do |machine|
@@ -90,8 +90,7 @@ Vagrant.configure("2") do |config|
 
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
-      #node.vm.network "private_network", auto_network: true
-      node.vm.network "public_network", ip: machine[:ip]
+      node.vm.network "private_network", auto_network: true
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -103,12 +102,6 @@ Vagrant.configure("2") do |config|
       cp /vagrant/config/id_rsa* /root/.ssh
       if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
       kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-      #
-      #useradd -m -Gsudo -p $1$wRhU1DZh$x0mTBNymHwl/2tGpPYJX6/ -s/bin/bash solidfire
-      useradd -m -Gsudo -p $(openssl passwd -1 solidfire) -s/bin/bash solidfire
-      perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-      systemctl reload sshd
-      echo 'solidfire  ALL=(ALL) NOPASSWD:ALL' | sudo EDITOR='tee -a' visudo
     SETUP
 
     shared_folders_all.each do |shared|
