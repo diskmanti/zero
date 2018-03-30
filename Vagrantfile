@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
     node.vm.box = "centos/7"
     node.vm.hostname = 'zero'
     #node.vm.network "private_network", auto_network: true
-    node.vm.network "public_network", ip: '192.168.1.50'
+    node.vm.network "public_network", ip: '192.168.1.50', :bridge => 'en0: Ethernet 1'
     node.vm.provider :virtualbox do |vb|
       vb.gui = true
       vb.customize ['modifyvm', :id, '--memory', 4096]
@@ -84,6 +84,7 @@ Vagrant.configure("2") do |config|
     { :hostname => 'k8s3', :ip => '192.168.1.63', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
     { :hostname => 'k8s4', :ip => '192.168.1.64', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
   ]
+  default_user = 'solidfire'
 
   k8svms.each do |machine|
     config.vm.define machine[:hostname] do |node|
@@ -91,12 +92,25 @@ Vagrant.configure("2") do |config|
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
       #node.vm.network "private_network", auto_network: true
-      node.vm.network "public_network", ip: machine[:ip]
+      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1'
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
         vb.customize ['modifyvm', :id, '--vram', machine[:vram]]
+        vb.name = machine[:hostname]
       end
+      node.vm.provider 'virtualbox' do |vb|
+        disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
+        disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
+        unless File.exist?( disk_container )
+          vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 40 * 1024]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
+        unless File.exist?(disk_persistent)
+          vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 40 * 1024]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
+    end
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
@@ -105,10 +119,12 @@ Vagrant.configure("2") do |config|
       kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
       #
       #useradd -m -Gsudo -p $1$wRhU1DZh$x0mTBNymHwl/2tGpPYJX6/ -s/bin/bash solidfire
-      useradd -m -Gsudo -p $(openssl passwd -1 solidfire) -s/bin/bash solidfire
+      #useradd -m -Gsudo -p $(openssl passwd -1 solidfire) -s/bin/bash solidfire
+      useradd -m -Gsudo -p $(openssl passwd -1 default_user) -s/bin/bash default_user
       perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
       systemctl reload sshd
-      echo 'solidfire  ALL=(ALL) NOPASSWD:ALL' | sudo EDITOR='tee -a' visudo
+      #echo 'solidfire  ALL=(ALL) NOPASSWD:ALL' | sudo EDITOR='tee -a' visudo
+      echo "default_user  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
     SETUP
 
     shared_folders_all.each do |shared|
