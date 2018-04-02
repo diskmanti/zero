@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
   shared_folders_all = [
     { :host_dir => 'srv', :guest_dir => '/src', :create => 'false', :owner => 'vagrant', },
   ]
- 
+
   ##########  Zero  ##########   
 
   config.vm.define 'zero' do |node|
@@ -89,10 +89,11 @@ Vagrant.configure("2") do |config|
   k8svms.each do |machine|
     config.vm.define machine[:hostname] do |node|
 
+      ip_addr = machine[:ip]
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
       #node.vm.network "private_network", auto_network: true
-      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1'
+      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -117,14 +118,11 @@ Vagrant.configure("2") do |config|
       cp /vagrant/config/id_rsa* /root/.ssh
       if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
       kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-      #
-      #useradd -m -Gsudo -p $1$wRhU1DZh$x0mTBNymHwl/2tGpPYJX6/ -s/bin/bash solidfire
-      #useradd -m -Gsudo -p $(openssl passwd -1 solidfire) -s/bin/bash solidfire
-      useradd -m -Gsudo -p $(openssl passwd -1 default_user) -s/bin/bash default_user
+      useradd -m -Gsudo -p $(openssl passwd -1 #{default_user}) -s/bin/bash #{default_user}
       perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
       systemctl reload sshd
-      #echo 'solidfire  ALL=(ALL) NOPASSWD:ALL' | sudo EDITOR='tee -a' visudo
-      echo "default_user  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
+      grep "^#{default_user} " /etc/sudoers || echo "#{default_user}  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
+      grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
     SETUP
 
     shared_folders_all.each do |shared|
