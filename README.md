@@ -1,4 +1,4 @@
-# vagrant-zero
+# zero
 
 Development environment using Vagrant and Virtualbox.
 
@@ -25,9 +25,9 @@ This development environment requires the following on the host machine (i.e. yo
 #### Clone repo
 Clone this repository to working directory on local host and change to directory.
 
-`$ git clone https://github.com/rcompos/vagrant-zero`
+`$ git clone https://github.com/rcompos/zero`
 
-`$ cd vagrant-zero`
+`$ cd zero`
 
 #### Install Vagrant
 
@@ -52,7 +52,7 @@ Start-up lag can be remedied by pruning unwanted definitions.
 ## Setup
 #### Spin up Control VM
 
-Change to *vagrant-zero* directory and run the following as your user (root not required).
+Change to *zero* directory and run the following as your user (root not required).
 
 Get status.
 
@@ -76,7 +76,7 @@ zero$ ansible all -m ping   #  * type yes then enter *
 
 #### Spin up Client VM's
 
-Change to *vagrant-zero* directory and run the following as your user (root not required).
+Change to *zero* directory and run the following as your user (root not required).
 
 Get status.
 
@@ -95,7 +95,7 @@ Bounce servers to disable SELinux (unfortunate for now).
 
 *** _Run this each time a VM is created or destroyed_ ***
 
-The hosts info must be updated and ssh keys configured.  Change to *vagrant-zero* directory and run the following as your user (root not required).
+The hosts info must be updated and ssh keys configured.  Change to *zero* directory and run the following as your user (root not required).
 
 Update hosts files.
 
@@ -124,8 +124,8 @@ root@zero /src $ git clone https://github.com/<user>/<repo>.git
 ```
 
 Develop and test using server zero as control node.  Enjoy git branch status in prompt.
-All files in *src* are stored outside the vagrant-zero repo.
-The *src* directory will persist on host filesystem even if VM's are destroyed or the vagrant-zero repo is removed.
+All files in *src* are stored outside the zero repo.
+The *src* directory will persist on host filesystem even if VM's are destroyed or the zero repo is removed.
 
 ```
 root@zero /sr $ cd my-repo
