@@ -79,11 +79,14 @@ Vagrant.configure("2") do |config|
 
   k8s_ubu_vms = [
     # 1024 2048 3072 4096
-    { :hostname => 'k8s0', :ip => '192.168.1.60', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s1', :ip => '192.168.1.61', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s2', :ip => '192.168.1.62', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s3', :ip => '192.168.1.63', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s4', :ip => '192.168.1.64', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'turbo-0', :ip => '192.168.1.60', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'turbo-1', :ip => '192.168.1.61', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'turbo-2', :ip => '192.168.1.62', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'turbo-3', :ip => '192.168.1.63', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'turbo-4', :ip => '192.168.1.64', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'ice-0',   :ip => '192.168.1.65', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'ice-1',   :ip => '192.168.1.66', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'ice-2',   :ip => '192.168.1.67', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
   ]
   default_ubuntu_user = 'solidfire'
 
@@ -105,20 +108,20 @@ Vagrant.configure("2") do |config|
         disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
         disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
         unless File.exist?( disk_container )
-          vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 40 * 1024]
+          vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 24 * 1024]
         end
         vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
         unless File.exist?(disk_persistent)
-          vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 40 * 1024]
+          vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 64 * 1024]
         end
         vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
     end
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-      cp /vagrant/config/id_rsa* /root/.ssh
-      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+      #cp /vagrant/config/id_rsa* /root/.ssh
+      #if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      #kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
       useradd -m -Gsudo -p $(openssl passwd -1 #{default_ubuntu_user}) -s/bin/bash #{default_ubuntu_user}
       perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
       systemctl reload sshd
@@ -140,11 +143,11 @@ Vagrant.configure("2") do |config|
   ##########  CentOS  ##########   
 
   k8s_centos_vms = [
-    { :hostname => 'k8s5', :ip => '192.168.1.65', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s6', :ip => '192.168.1.66', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s7', :ip => '192.168.1.67', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s8', :ip => '192.168.1.68', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'k8s9', :ip => '192.168.1.69', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'maverick-0', :ip => '192.168.1.70', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'maverick-1', :ip => '192.168.1.71', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'maverick-2', :ip => '192.168.1.72', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'maverick-3', :ip => '192.168.1.73', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'maverick-4', :ip => '192.168.1.74', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
   ]
   default_centos_user = 'solidfire'
 
@@ -190,9 +193,6 @@ Vagrant.configure("2") do |config|
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-      cp /vagrant/config/id_rsa* /root/.ssh
-      if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-      kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
       useradd -m -Gwheel -p $(openssl passwd -1 #{default_centos_user}) -s/bin/bash #{default_centos_user}
       perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
       systemctl reload sshd
@@ -214,9 +214,9 @@ Vagrant.configure("2") do |config|
   ##########  CentOS VMs  ##########   
 
   centos7vms = [
-    { :hostname => 'cent7s0', :box   => 'centos/7', :cpu  => 2, :ram   => 2048, },
+    #{ :hostname => 'cent7s0', :box   => 'centos/7', :cpu  => 2, :ram   => 2048, },
     #{ :hostname => 'cent7s1', :box   => 'centos/7', :cpu  => 2, :ram   => 2048, },
-    { :hostname => 'cicd0',   :box   => 'centos/7', :cpu  => 2, :ram   => 4096, },
+    #{ :hostname => 'cicd0',   :box   => 'centos/7', :cpu  => 2, :ram   => 4096, },
   ]
 
   centos7vms.each do |machine|
@@ -256,7 +256,7 @@ Vagrant.configure("2") do |config|
   ##########  CentOS 6 VM's  ##########   
 
   centos6vms = [
-    { :hostname => 'cent6s0', :box  => 'centos/6', :cpu  => 1, :ram  => 1024, :vram => 64, },
+    #{ :hostname => 'cent6s0', :box  => 'centos/6', :cpu  => 1, :ram  => 1024, :vram => 64, },
     #{ :hostname => 'cent6s1', :box  => 'centos/6', :cpu  => 1, :ram  => 1024, :vram => 64, },
   ]
 
