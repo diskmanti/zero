@@ -178,18 +178,19 @@ Vagrant.configure("2") do |config|
       node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
       node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
 
-#      node.vm.provider 'virtualbox' do |vb|
-#        disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
-#        disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
-#        unless File.exist?( disk_container )
-#          vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 40 * 1024]
-#        end
-#        vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
-#        unless File.exist?(disk_persistent)
-#          vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 40 * 1024]
-#        end
-#        vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
-#    end
+      node.vm.provider 'virtualbox' do |vb|
+        disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
+        disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
+        vb.customize ["storagectl", :id, "--name", "SATAController", "--add", "sata"]
+        unless File.exist?( disk_container )
+          vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 40 * 1024]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
+        unless File.exist?(disk_persistent)
+          vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 40 * 1024]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
+    end
 
     node.vm.provision :shell, inline: <<-SETUP
       if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
