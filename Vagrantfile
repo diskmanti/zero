@@ -15,7 +15,8 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
 
   shared_folders_all = [
-    { :host_dir => 'srv', :guest_dir => '/src', :create => 'false', :owner => 'vagrant', },
+    #{ :host_dir => 'srv', :guest_dir => '/src', :create => 'false', :owner => 'vagrant', },
+    { :host_dir => 'srv', :guest_dir => '/src', :create => 'true', :owner => 'vagrant', },
   ]
 
   ##########  Zero  ##########   
@@ -24,8 +25,8 @@ Vagrant.configure("2") do |config|
 
     node.vm.box = "centos/7"
     node.vm.hostname = 'zero'
-    #node.vm.network "private_network", auto_network: true
-    node.vm.network "public_network", ip: '192.168.1.50', :bridge => 'en0: Ethernet 1'
+    node.vm.network "private_network", auto_network: true
+    #node.vm.network "public_network", ip: '192.168.1.50', :bridge => 'en0: Ethernet 1'
     node.vm.provider :virtualbox do |vb|
       vb.gui = true
       vb.customize ['modifyvm', :id, '--memory', 4096]
@@ -70,7 +71,7 @@ Vagrant.configure("2") do |config|
       guestdir = shared[:guest_dir]
       create   = shared[:create]
       owner    = shared[:owner]
-      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: #{owner}"
     end
 
   end
@@ -79,14 +80,17 @@ Vagrant.configure("2") do |config|
 
   k8s_ubu_vms = [
     # 1024 2048 3072 4096
-    { :hostname => 'turbo-0', :ip => '192.168.1.60', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'turbo-1', :ip => '192.168.1.61', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'turbo-2', :ip => '192.168.1.62', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'zeus-0', :ip => '192.168.1.60', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'zeus-1', :ip => '192.168.1.61', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'zeus-2', :ip => '192.168.1.62', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
     #{ :hostname => 'turbo-3', :ip => '192.168.1.63', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
     #{ :hostname => 'turbo-4', :ip => '192.168.1.64', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'ice-0',   :ip => '192.168.1.65', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'ice-1',   :ip => '192.168.1.66', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'ice-2',   :ip => '192.168.1.67', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'ice-0',   :ip => '192.168.1.65', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'ice-1',   :ip => '192.168.1.66', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'ice-2',   :ip => '192.168.1.67', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'ice-0',   :ip => '192.168.1.65', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'ice-1',   :ip => '192.168.1.66', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'ice-2',   :ip => '192.168.1.67', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
   ]
   default_ubuntu_user = 'solidfire'
 
@@ -96,8 +100,8 @@ Vagrant.configure("2") do |config|
       ip_addr = machine[:ip]
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
-      #node.vm.network "private_network", auto_network: true
-      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      node.vm.network "private_network", auto_network: true
+      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -126,7 +130,7 @@ Vagrant.configure("2") do |config|
       perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
       systemctl reload sshd
       grep "^#{default_ubuntu_user} " /etc/sudoers || echo "#{default_ubuntu_user}  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
-      grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
+      #grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
     SETUP
 
     shared_folders_all.each do |shared|
