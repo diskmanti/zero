@@ -1,0 +1,84 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+
+Vagrant.configure("2") do |config|
+
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+
+  k8s_ubu_vms = [
+    # 1024 2048 3072 4096
+    { :hostname => 'zeus-0', :ip => '192.168.1.60', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'zeus-1', :ip => '192.168.1.61', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'zeus-2', :ip => '192.168.1.62', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    #{ :hostname => 'turbo-3', :ip => '192.168.1.63', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'turbo-4', :ip => '192.168.1.64', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'ice-0',   :ip => '192.168.1.65', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'ice-1',   :ip => '192.168.1.66', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    #{ :hostname => 'ice-2',   :ip => '192.168.1.67', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'ice-0',   :ip => '192.168.1.65', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'ice-1',   :ip => '192.168.1.66', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+    { :hostname => 'ice-2',   :ip => '192.168.1.67', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 3072, :vram => 64, },
+  ]
+  default_ubuntu_user = 'solidfire'
+
+  k8s_ubu_vms.each do |machine|
+    config.vm.define machine[:hostname] do |node|
+
+      ip_addr = machine[:ip]
+      node.vm.box = machine[:box]
+      node.vm.hostname = machine[:hostname]
+      node.vm.network "private_network", auto_network: true
+      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      node.vm.provider 'virtualbox' do |vb|
+        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
+        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
+        vb.customize ['modifyvm', :id, '--vram', machine[:vram]]
+        vb.name = machine[:hostname]
+      end
+      node.vm.provider 'virtualbox' do |vb|
+        disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
+        disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
+        unless File.exist?( disk_container )
+          vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 24 * 1024]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
+        unless File.exist?(disk_persistent)
+          vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 64 * 1024]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
+    end
+
+    node.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      #cp /vagrant/config/id_rsa* /root/.ssh
+      #if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
+      #kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
+      useradd -m -Gsudo -p $(openssl passwd -1 #{default_ubuntu_user}) -s/bin/bash #{default_ubuntu_user}
+      perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+      systemctl reload sshd
+      grep "^#{default_ubuntu_user} " /etc/sudoers || echo "#{default_ubuntu_user}  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
+      #grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
+    SETUP
+
+    shared_folders_all.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
+
+    end
+  end
+  
+end
+
