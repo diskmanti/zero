@@ -1,8 +1,23 @@
 # zero
 
-Development environment using Vagrant and Virtualbox.
+Create local virtual machines using Vagrant and Virtualbox, VMware Fusion or Workstation.  
+Define sets of VM's in the Vagrantfile and spin them up or wipe them out with a single command.  
+You can include configuration to be run (such as shell commands and scripts) after OS-install in the provision section.
 
-The control node zero runs CentOS 7 and includes a GUI.  It is designated as a jump host for the other VM's in the virtual private network.
+VM named 'zero' runs CentOS 8, includes a GUI, bridged adapter, DHCP bridged networking.
+
+VM named 'uno' runs CentOS 8, includes a GUI, bridged adapter, static IP bridged networking.
+
+Other VM's are CentOS 8 or Ubuntu 18.04 (Bionic), no GUI with various network options.
+
+* bionic-N: Ubuntu 18.04, bridged adapter, static IP's
+* lucky-N, yolo-N:  Ubuntu 18.04, bridged adapter DHCP, additional virtual disks
+* ice-N:  CentOS 8, bridged adapter DHCP, additional virtual disks
+    
+If the bridge adapter doesn't exist or isn't specified, you'll be prompted to choose a network adapter.
+
+Any of the VM's can use a virtual private network employing NAT by changing the network definition from public_network to private_network.
+    node.vm.network "private_network", auto_network: true
 
 ```
  ____________________________________
@@ -16,7 +31,7 @@ The control node zero runs CentOS 7 and includes a GUI.  It is designated as a j
 ```
 ## Requirements
 
-This development environment requires the following on the host machine (i.e. your MacBook or PC):
+Running VM's requires the following on the host machine (i.e. your MacBook or PC):
 
   - Virtualbox (VMware Fusion or VMware Workstation are supported with plugin)
   - Vagrant
@@ -50,9 +65,10 @@ If you want to address the guest VM's by host name, you must create DNS entries 
 on the host VM.
 
 ## Setup
-#### Spin up Control VM
+#### Spin up basic Linux VM
 
-Change to *zero* directory and run the following as your user (root not required).
+Change to *zero* directory and run the following as your user (root not required).  
+Note: Sometimes you 
 
 Get status.
 
@@ -74,7 +90,7 @@ zero$ sudo su -
 zero$ ansible all -m ping   #  * type yes then enter *
 ```
 
-#### Spin up Client VM's
+#### Spin up sets of VM's
 
 Change to *zero* directory and run the following as your user (root not required).
 
@@ -82,28 +98,27 @@ Get status.
 
 `$ vagrant status`
 
-Start set of VM's.
+Start set of virtual machines.
 
-`$ vagrant up zero cent7s0`
+`$ vagrant up zero lucky-1`
+
+Start many virtual machines.  Note, these VM's must all be pre-defined in the Vagrantfile.
+
+`$ for i in {1..3}; do vagrant up lucky-$i; done`
 
 Bounce servers to disable SELinux (unfortunate for now).
 
-`$ vagrant reload zero cent7s0`
+`$ vagrant reload zero lucky-1`
 
 
-#### Update system hosts and ansible hosts
+#### Hostname resolution
 
-*** _Run this each time a VM is created or destroyed_ ***
-
-The hosts info must be updated and ssh keys configured.  Change to *zero* directory and run the following as your user (root not required).
-
-Update hosts files.
-
-`$ vagrant hostmanager`
-
-Re-run provision scripts to update Ansible hosts.
-
-`$ vagrant provision zero`
+If you have bridged networking VMs (public_network) and want to address the VMs by name you can:
+  * Create DNS entries for your domain
+  * Add entries to host and guest hosts files
+ 
+If you decided to maintain your own host files, 
+you should update host and guest machine hosts file (/etc/hosts) with the IP address and name of all your VM's. 
 
 
 ## Develop
@@ -123,7 +138,7 @@ root@zero ~ $ cd /src
 root@zero /src $ git clone https://github.com/<user>/<repo>.git
 ```
 
-Develop and test using server zero as control node.  Enjoy git branch status in prompt.
+Develop and test using server zero as development box.
 All files in *src* are stored outside the zero repo.
 The *src* directory will persist on host filesystem even if VM's are destroyed or the zero repo is removed.
 
@@ -142,7 +157,7 @@ Stop VM's.
 
 #### Destroy VM's to abandon or rebuild
 
-`$ vagrant destroy -f zero cent7s0`
+`$ vagrant destroy -f zero lucky-1`
 
 ## Helpful Commands
 
@@ -156,7 +171,7 @@ Start single VM.
 
 Start multiple VM's.
 
-`$ vagrant up dbserver webserver`
+`$ vagrant up lucky-1 lucky-2 lucky-3`
 
 Stop single VM.
 
@@ -164,7 +179,7 @@ Stop single VM.
 
 Stop multiple VM's.
 
-`$ vagrant halt dbserver webserver`
+`$ vagrant halt lucky-1 lucky-2 lucky-3`
 
 Get global status.
 
