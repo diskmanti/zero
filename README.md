@@ -38,16 +38,16 @@ The Vagrant recommendation is to download installer from https://www.vagrantup.c
 #### Install Vagrant Plugin(s)
 
 Install Vagrant plugins using native plugin manager.  
-*vagrant-hostmanager* manages VM operating system hosts file (*/etc/hosts*).
 VMware Fusion and Desktop are supported with a paid plugin.
-
-`$ vagrant plugin install vagrant-hostmanager`
 
 #### Create VM Definitions (optional)
 
 Virtual machine definitions are stored in the file *Vagrantfile*.  Customize as needed.
 A large number of VM definitions which adds some notable lag to Vagrant start-up times.
 Start-up lag can be remedied by pruning unwanted definitions.
+
+If you want to address the guest VM's by host name, you must create DNS entries or entries
+on the host VM.
 
 ## Setup
 #### Spin up Control VM

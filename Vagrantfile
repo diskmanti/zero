@@ -59,81 +59,13 @@ Vagrant.configure("2") do |config|
       fi
     SHELL
 
-    ##if Vagrant.has_plugin? 'vagrant-hostmanager' ##  system "vagrant hostmanager" ##end
     node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
     node.vm.provision :shell, inline: "dnf -y install git bash-completion tree bind-utils"
     node.vm.provision :shell, path:   "config/bashrc_mod.pl"
 
   end
 
-#  ##########  Ubuntu 16.04 Xenial  ##########   
-#
-#  k8s_ubu_vms = [
-#    # Ubuntu 16.04 Xenial
-#    # Turbo
-#    #{ :hostname => 'turbo-1', :ip => '192.168.1.61', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 8192, :vram => 64, },
-#    #{ :hostname => 'turbo-2', :ip => '192.168.1.62', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 8192, :vram => 64, },
-#    #{ :hostname => 'turbo-3', :ip => '192.168.1.63', :box => 'ubuntu/xenial64', :cpu => 2, :ram => 8192, :vram => 64, },
-#    ###  1024 2048 3072 4096  ###
-#  ]
-#  default_ubuntu_user = 'solidfire'
-#
-#  k8s_ubu_vms.each do |machine|
-#    config.vm.define machine[:hostname] do |node|
-#
-#      ip_addr = machine[:ip]
-#      node.vm.box = machine[:box]
-#      node.disksize.size = '20GB'
-#      node.vm.hostname = machine[:hostname]
-#      #node.vm.network "private_network", auto_network: true
-#      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
-#      node.vm.provider 'virtualbox' do |vb|
-#        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
-#        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
-#        vb.customize ['modifyvm', :id, '--vram', machine[:vram]]
-#        vb.name = machine[:hostname]
-#      end
-#      node.vm.provider 'virtualbox' do |vb|
-#        disk_container  = "../vbox/#{node.vm.hostname}/containers-docker.vdi"
-#        disk_persistent1 = "../vbox/#{node.vm.hostname}/persistent1.vdi"
-#        #disk_persistent2 = "../vbox/#{node.vm.hostname}/persistent2.vdi"
-#        unless File.exist?( disk_container )
-#          vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 16 * 1024]
-#        end
-#        vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
-#        unless File.exist?(disk_persistent1)
-#          vb.customize ['createhd', '--filename', disk_persistent1, '--variant', 'Fixed', '--size', 32 * 1024]
-#        end
-#        vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent1]
-#        #unless File.exist?(disk_persistent2)
-#        #  vb.customize ['createhd', '--filename', disk_persistent2, '--variant', 'Fixed', '--size', 50 * 1024]
-#        #end
-#        #vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 4, '--device', 0, '--type', 'hdd', '--medium', disk_persistent2]
-#    end
-#
-#    node.vm.provision :shell, inline: <<-SETUP
-#      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-#      #cp /vagrant/config/id_rsa* /root/.ssh
-#      #if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-#      #kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-#      useradd -m -Gsudo -p $(openssl passwd -1 #{default_ubuntu_user}) -s/bin/bash #{default_ubuntu_user}
-#      perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-#      systemctl reload sshd
-#      #grep "^#{default_ubuntu_user} " /etc/sudoers || echo "#{default_ubuntu_user}  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
-#      #grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
-#    SETUP
-#
-#    shared_folders_all.each do |shared|
-#      hostdir  = shared[:host_dir]
-#      guestdir = shared[:guest_dir]
-#      create   = shared[:create]
-#      owner    = shared[:owner]
-#      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-#    end
-#
-#    end
-#  end
-#
+
   ##########  Ubuntu 18.04 Bionic  ##########   
 
   k8s_ubu_vms = [
@@ -194,165 +126,75 @@ Vagrant.configure("2") do |config|
   end
 
   ##########  CentOS 8  ##########   
-#
-#  k8s_centos_vms = [
-#    # Ice
-#    #{ :hostname => 'ice-1', :ip => '192.168.1.71', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'ice-2', :ip => '192.168.1.72', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'ice-3', :ip => '192.168.1.73', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
-#  ]
-#  default_centos_user = 'solidfire'
-#
-#  def sata_controller_exists?(controller_name="SATAController", node_name)
-#    `vboxmanage showvminfo #{node_name} | grep " #{controller_name}" | wc -l`.to_i == 1
-#  end
-#
-#  k8s_centos_vms.each do |machine|
-#    config.vm.define machine[:hostname] do |node|
-#
-#      ip_addr = machine[:ip]
-#      node.vm.box = machine[:box]
-#      node.vm.hostname = machine[:hostname]
-#      #node.vm.network "private_network", auto_network: true
-#      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
-#      node.vm.provider 'virtualbox' do |vb|
-#        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
-#        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
-#        vb.customize ['modifyvm', :id, '--vram', machine[:vram]]
-#        vb.name = machine[:hostname]
-#
-#        disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
-#        disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
-#        #if ARGV[0] == "up" || ARGV[0] == "reload"; then;
-#        #if ARGV[0] == "up"; then
-#
-#        #if ARGV[0] == "up"
-#        if ARGV[0] == "up" || ARGV[0] == "reload"
-#          if File.exist?( ".vagrant/machines/#{node.vm.hostname}/virtualbox/id" )
-#            unless sata_controller_exists?(controller_name="SATAController", node_name="#{node.vm.hostname}")
-#              vb.customize ["storagectl", :id, "--name", "SATAController", "--add", "sata"]
-#            end
-#            unless File.exist?( disk_container )
-#              vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 12 * 1024]
-#            end
-#            vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
-#            unless File.exist?( disk_persistent )
-#              vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 24 * 1024]
-#            end
-#            vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
-#          end
-#        end
-#      end
-#
-#      node.vm.provision :shell, inline: <<-SETUP
-#        if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-#        useradd -m -Gwheel -p $(openssl passwd -1 #{default_centos_user}) -s/bin/bash #{default_centos_user}
-#        perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-#        systemctl reload sshd
-#        #grep "^#{default_centos_user} " /etc/sudoers || echo "#{default_centos_user}  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
-#        #grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
-#      SETUP
-#  
-#      shared_folders_all.each do |shared|
-#        hostdir  = shared[:host_dir]
-#        guestdir = shared[:guest_dir]
-#        create   = shared[:create]
-#        owner    = shared[:owner]
-#        node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-#      end
-#
-#    end
-#  end 
-#
-#  ##########  CentOS 7  ##########   
-#
-#  k8s_centos_vms = [
-#    #{ :hostname => 'maverick-0', :ip => '192.168.1.70', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'maverick-1', :ip => '192.168.1.71', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'maverick-2', :ip => '192.168.1.72', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'maverick-3', :ip => '192.168.1.73', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'maverick-4', :ip => '192.168.1.74', :box => 'centos/7', :cpu => 2, :ram => 4096, :vram => 64, },
-#    # Ice
-#    #{ :hostname => 'ice-1', :ip => '192.168.1.71', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'ice-2', :ip => '192.168.1.72', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
-#    #{ :hostname => 'ice-3', :ip => '192.168.1.73', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
-#  ]
-#  default_centos_user = 'solidfire'
-#
-#  def sata_controller_exists?(controller_name="SATAController", node_name)
-#    `vboxmanage showvminfo #{node_name} | grep " #{controller_name}" | wc -l`.to_i == 1
-#  end
-#
-#  k8s_centos_vms.each do |machine|
-#    config.vm.define machine[:hostname] do |node|
-#
-#      ip_addr = machine[:ip]
-#      node.vm.box = machine[:box]
-#      node.vm.hostname = machine[:hostname]
-#      #node.vm.network "private_network", auto_network: true
-#      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
-#      node.vm.provider 'virtualbox' do |vb|
-#        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
-#        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
-#        vb.customize ['modifyvm', :id, '--vram', machine[:vram]]
-#        vb.name = machine[:hostname]
-#
-#        disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
-#        disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
-#        #if ARGV[0] == "up" || ARGV[0] == "reload"; then;
-#        #if ARGV[0] == "up"; then
-#
-#        #if ARGV[0] == "up"
-#        if ARGV[0] == "up" || ARGV[0] == "reload"
-#          if File.exist?( ".vagrant/machines/#{node.vm.hostname}/virtualbox/id" )
-#            unless sata_controller_exists?(controller_name="SATAController", node_name="#{node.vm.hostname}")
-#              vb.customize ["storagectl", :id, "--name", "SATAController", "--add", "sata"]
-#            end
-#            unless File.exist?( disk_container )
-#              vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 12 * 1024]
-#            end
-#            vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
-#            unless File.exist?( disk_persistent )
-#              vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 24 * 1024]
-#            end
-#            vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
-#          end
-#        end
-#      end
-#
-#      node.vm.provision :shell, inline: <<-SHELL 
-#        if rpm --quiet -q epel-release; then
-#          echo 'EPEL repo present'
-#        else
-#          echo 'Adding EPEL repo'
-#          /bin/rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-#        fi
-#        /bin/yum -y update
-#      SHELL
-#
-#      node.vm.provision :shell, inline: "[[ ! -f /etc/yum.repos.d/epel-7.repo ]] || /bin/mv /etc/yum.repos.d/epel-7.repo /etc/yum.repos.d/epel-7.repo.disabled"
-#      node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
-#      #node.vm.provision :shell, inline: 'setenforce 0'
-#
-#      node.vm.provision :shell, inline: <<-SETUP
-#        if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-#        useradd -m -Gwheel -p $(openssl passwd -1 #{default_centos_user}) -s/bin/bash #{default_centos_user}
-#        perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-#        systemctl reload sshd
-#        #grep "^#{default_centos_user} " /etc/sudoers || echo "#{default_centos_user}  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
-#        #grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
-#      SETUP
-#  
-#      shared_folders_all.each do |shared|
-#        hostdir  = shared[:host_dir]
-#        guestdir = shared[:guest_dir]
-#        create   = shared[:create]
-#        owner    = shared[:owner]
-#        node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
-#      end
-#
-#    end
-#  end
+
+  k8s_centos_vms = [
+    # Ice
+    { :hostname => 'ice-1', :ip => '192.168.1.71', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'ice-2', :ip => '192.168.1.72', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'ice-3', :ip => '192.168.1.73', :box => 'bento/centos-8', :cpu => 2, :ram => 4096, :vram => 64, },
+  ]
+  default_centos_user = 'solidfire'
+
+  def sata_controller_exists?(controller_name="SATAController", node_name)
+    `vboxmanage showvminfo #{node_name} | grep " #{controller_name}" | wc -l`.to_i == 1
+  end
+
+  k8s_centos_vms.each do |machine|
+    config.vm.define machine[:hostname] do |node|
+
+      ip_addr = machine[:ip]
+      node.vm.box = machine[:box]
+      node.vm.hostname = machine[:hostname]
+      #node.vm.network "private_network", auto_network: true
+      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      node.vm.provider 'virtualbox' do |vb|
+        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
+        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
+        vb.customize ['modifyvm', :id, '--vram', machine[:vram]]
+        vb.name = machine[:hostname]
+
+        disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
+        disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
+        #if ARGV[0] == "up" || ARGV[0] == "reload"; then;
+        #if ARGV[0] == "up"; then
+
+        #if ARGV[0] == "up"
+        if ARGV[0] == "up" || ARGV[0] == "reload"
+          if File.exist?( ".vagrant/machines/#{node.vm.hostname}/virtualbox/id" )
+            unless sata_controller_exists?(controller_name="SATAController", node_name="#{node.vm.hostname}")
+              vb.customize ["storagectl", :id, "--name", "SATAController", "--add", "sata"]
+            end
+            unless File.exist?( disk_container )
+              vb.customize ['createhd', '--filename', disk_container, '--variant', 'Fixed', '--size', 12 * 1024]
+            end
+            vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_container]
+            unless File.exist?( disk_persistent )
+              vb.customize ['createhd', '--filename', disk_persistent, '--variant', 'Fixed', '--size', 24 * 1024]
+            end
+            vb.customize ['storageattach', :id,  '--storagectl', 'SATAController', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_persistent]
+          end
+        end
+      end
+
+      node.vm.provision :shell, inline: <<-SETUP
+        if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+        useradd -m -Gwheel -p $(openssl passwd -1 #{default_centos_user}) -s/bin/bash #{default_centos_user}
+        perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+        systemctl reload sshd
+        #grep "^#{default_centos_user} " /etc/sudoers || echo "#{default_centos_user}  ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
+        #grep "^#{ip_addr} " /etc/hosts &&  perl -pi -e's/^#{ip_addr} /#{ip_addr}  #{node.vm.hostname}/' /etc/hosts || echo "#{ip_addr}  #{node.vm.hostname}" >> /etc/hosts
+      SETUP
+  
+      shared_folders_all.each do |shared|
+        hostdir  = shared[:host_dir]
+        guestdir = shared[:guest_dir]
+        create   = shared[:create]
+        owner    = shared[:owner]
+        node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+      end
+
+    end
+  end 
 
   ##########  End VMs  ##########   
 
