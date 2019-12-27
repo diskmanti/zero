@@ -18,29 +18,24 @@ Vagrant.configure("2") do |config|
     { :host_dir => 'srv', :guest_dir => '/src', :create => 'false', :owner => 'vagrant', },
   ]
 
-  ##########  Zero  ##########   
+  ##########  CentOS - Bridged DHCP ##########   
 
   config.vm.define 'zero' do |node|
 
     node.vm.box = "bento/centos-8.0"
     node.vm.hostname = 'zero'
     #node.vm.network "private_network", auto_network: true
-    node.vm.network "public_network", ip: '192.168.1.50', :bridge => 'en0: Ethernet 1'
+    # Specify the name of the network adapter to use with setting bridge.
+    #node.vm.network "public_network", auto_network: true, :bridge => 'en0: Ethernet 1'
+    node.vm.network "public_network", auto_network: true
     node.vm.provider :virtualbox do |vb|
       vb.gui = true
       vb.customize ['modifyvm', :id, '--memory', 2048]
       vb.customize ['modifyvm', :id, '--cpus', 2]
       vb.customize ['modifyvm', :id, '--vram', 128]
+      vb.name = node.vm.hostname
     end
 
-    #node.vm.provision :shell, inline: <<-SETUP
-    #  if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
-    #  cp /vagrant/config/id_rsa* /root/.ssh
-    #  if [[ -f /root/.ssh/id_rsa ]]; then chmod 0600 /root/.ssh/id_rsa; fi
-    #  kfile='/root/.ssh/authorized_keys'; if [[ ! -z $kfile ]]; then cat /root/.ssh/id_rsa.pub > $kfile; fi && chmod 0600 $kfile
-    #SETUP
-
-    #node.vm.provision :shell, path:   "config/hostwithmost.pl"
     node.vm.provision :shell, inline: <<-SHELL 
       if [[ `dnf --quiet repolist epel | egrep "^*?epel" | echo $?` != 0 ]]; then
         echo 'EPEL repo present'
@@ -65,18 +60,56 @@ Vagrant.configure("2") do |config|
 
   end
 
+  ##########  CentOS - Bridged Static IP  ##########   
 
-  ##########  Ubuntu 18.04 Bionic  ##########   
+  config.vm.define 'uno' do |node|
+
+    node.vm.box = "bento/centos-8.0"
+    node.vm.hostname = 'uno'
+    #node.vm.network "private_network", auto_network: true
+    # Specify the name of the network adapter to use with setting bridge.
+    #node.vm.network "public_network", ip: '192.168.1.50', :bridge => 'en0: Ethernet 1'
+    node.vm.network "public_network", ip: '192.168.1.50', :netmask => "255.255.255.0"
+    node.vm.provider :virtualbox do |vb|
+      vb.gui = true
+      vb.customize ['modifyvm', :id, '--memory', 2048]
+      vb.customize ['modifyvm', :id, '--cpus', 2]
+      vb.customize ['modifyvm', :id, '--vram', 128]
+      vb.name = node.vm.hostname
+    end
+  
+    node.vm.provision :shell, inline: <<-SHELL 
+      if [[ `dnf --quiet repolist epel | egrep "^*?epel" | echo $?` != 0 ]]; then
+        echo 'EPEL repo present'
+      else
+        echo 'Adding EPEL repo'
+        dnf config-manager --set-enabled PowerTools
+        dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    dnf install epel-release -y
+      fi
+      dnf -y update
+      if [[ `dnf --quiet repolist docker-ce | egrep "^*?docker-ce" | echo $?` != 0 ]]; then
+        echo 'Docker-CE repo present'
+      else
+        echo 'Adding Docker-CE repo'
+        dnf -y config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+      fi
+    SHELL
+  
+    node.vm.provision :shell, inline: 'perl -i -pe\'s/^SELINUX=enforcing\s+$/SELINUX=disabled\n/\' /etc/selinux/config'
+    node.vm.provision :shell, inline: "dnf -y install git bash-completion tree bind-utils"
+    node.vm.provision :shell, path:   "config/bashrc_mod.pl"
+  
+  end
+
+
+##########  Ubuntu 18.04 Bionic - Bridged DHCP  ##########
 
   k8s_ubu_vms = [
-    # 1024 2048 3072 4096
     # Ubuntu 18.04 Bionic
-    { :hostname => 'lucky-1',   :ip => '192.168.1.81', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'lucky-2',   :ip => '192.168.1.82', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'lucky-3',   :ip => '192.168.1.83', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'yolo-1',   :ip => '192.168.1.84', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'yolo-2',   :ip => '192.168.1.85', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
-    { :hostname => 'yolo-3',   :ip => '192.168.1.86', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 64, },
+    { :hostname => 'bionic-1', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 2048, :vram => 28, },
+    { :hostname => 'bionic-2', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 2048, :vram => 28, },
+    { :hostname => 'bionic-3', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 2048, :vram => 28, },
   ]
   default_ubuntu_user = 'solidfire'
 
@@ -87,7 +120,60 @@ Vagrant.configure("2") do |config|
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
       #node.vm.network "private_network", auto_network: true
-      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      # Specify the name of the network adapter to use with setting bridge.
+      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      node.vm.network "public_network", auto_network: true
+      node.vm.provider 'virtualbox' do |vb|
+        vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
+        vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
+        vb.customize ['modifyvm', :id, '--vram', machine[:vram]]
+        vb.name = machine[:hostname]
+      end
+
+    node.vm.provision :shell, inline: <<-SETUP
+      if [[ ! -d /root/.ssh ]]; then mkdir -m0700 /root/.ssh; fi
+      useradd -m -Gsudo -p $(openssl passwd -1 #{default_ubuntu_user}) -s/bin/bash #{default_ubuntu_user}
+      perl -pi -e's/^PasswordAuthentication\s+no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+      systemctl reload sshd
+    SETUP
+
+    shared_folders_all.each do |shared|
+      hostdir  = shared[:host_dir]
+      guestdir = shared[:guest_dir]
+      create   = shared[:create]
+      owner    = shared[:owner]
+      node.vm.synced_folder "../#{hostdir}", "/#{guestdir}", create: "#{create}, owner: "#{owner}"
+    end
+
+    end
+  end
+
+
+  ##########  Ubuntu 18.04 Bionic - Bridged Static IP  ##########   
+  ### Includes additional virtual disks  ###
+
+  k8s_ubu_vms = [
+    # 1024 2048 3072 4096
+    # Ubuntu 18.04 Bionic
+    { :hostname => 'lucky-1',   :ip => '192.168.1.81', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 28, },
+    { :hostname => 'lucky-2',   :ip => '192.168.1.82', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 28, },
+    { :hostname => 'lucky-3',   :ip => '192.168.1.83', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 28, },
+    { :hostname => 'yolo-1',   :ip => '192.168.1.84', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 28, },
+    { :hostname => 'yolo-2',   :ip => '192.168.1.85', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 28, },
+    { :hostname => 'yolo-3',   :ip => '192.168.1.86', :box => 'ubuntu/bionic64', :cpu => 2, :ram => 4096, :vram => 28, },
+  ]
+  default_ubuntu_user = 'solidfire'
+
+  k8s_ubu_vms.each do |machine|
+    config.vm.define machine[:hostname] do |node|
+
+      ip_addr = machine[:ip]
+      node.vm.box = machine[:box]
+      node.vm.hostname = machine[:hostname]
+      #node.vm.network "private_network", auto_network: true
+      # Specify the name of the network adapter to use with setting bridge.
+      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      node.vm.network "public_network", ip: machine[:ip], :netmask => "255.255.255.0"
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -125,7 +211,9 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  ##########  CentOS 8  ##########   
+
+  ##########  CentOS 8 - Bridged Static IP  ##########   
+  ### Includes additional virtual disks  ###
 
   k8s_centos_vms = [
     # Ice
@@ -146,7 +234,9 @@ Vagrant.configure("2") do |config|
       node.vm.box = machine[:box]
       node.vm.hostname = machine[:hostname]
       #node.vm.network "private_network", auto_network: true
-      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      # Specify the name of the network adapter to use with setting bridge.
+      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      node.vm.network "public_network", ip: machine[:ip], :netmask => "255.255.255.0"
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -155,10 +245,7 @@ Vagrant.configure("2") do |config|
 
         disk_container  = "../vbox/#{node.vm.hostname}/containers.vdi"
         disk_persistent = "../vbox/#{node.vm.hostname}/persistent.vdi"
-        #if ARGV[0] == "up" || ARGV[0] == "reload"; then;
-        #if ARGV[0] == "up"; then
 
-        #if ARGV[0] == "up"
         if ARGV[0] == "up" || ARGV[0] == "reload"
           if File.exist?( ".vagrant/machines/#{node.vm.hostname}/virtualbox/id" )
             unless sata_controller_exists?(controller_name="SATAController", node_name="#{node.vm.hostname}")

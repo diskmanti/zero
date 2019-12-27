@@ -64,6 +64,8 @@ Start-up lag can be remedied by pruning unwanted definitions.
 If you want to address the guest VM's by host name, you must create DNS entries or entries
 on the host VM.
 
+VM's that include addtional virtual disks are ideal for Kubernetes cluster nodes.
+
 ## Setup
 #### Spin up basic Linux VM
 
