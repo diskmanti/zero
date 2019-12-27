@@ -26,8 +26,8 @@ Vagrant.configure("2") do |config|
     node.vm.hostname = 'zero'
     #node.vm.network "private_network", auto_network: true
     # Specify the name of the network adapter to use with setting bridge.
-    #node.vm.network "public_network", auto_network: true, :bridge => 'en0: Ethernet 1'
-    node.vm.network "public_network", auto_network: true
+    node.vm.network "public_network", auto_network: true, :bridge => 'en0: Ethernet 1'
+    #node.vm.network "public_network", auto_network: true
     node.vm.provider :virtualbox do |vb|
       vb.gui = true
       vb.customize ['modifyvm', :id, '--memory', 2048]
@@ -68,8 +68,8 @@ Vagrant.configure("2") do |config|
     node.vm.hostname = 'uno'
     #node.vm.network "private_network", auto_network: true
     # Specify the name of the network adapter to use with setting bridge.
-    #node.vm.network "public_network", ip: '192.168.1.50', :bridge => 'en0: Ethernet 1'
-    node.vm.network "public_network", ip: '192.168.1.50', :netmask => "255.255.255.0"
+    node.vm.network "public_network", ip: '192.168.1.50', :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0" 
+    #node.vm.network "public_network", ip: '192.168.1.50', :netmask => "255.255.255.0"
     node.vm.provider :virtualbox do |vb|
       vb.gui = true
       vb.customize ['modifyvm', :id, '--memory', 2048]
@@ -121,8 +121,8 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = machine[:hostname]
       #node.vm.network "private_network", auto_network: true
       # Specify the name of the network adapter to use with setting bridge.
-      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
-      node.vm.network "public_network", auto_network: true
+      node.vm.network "public_network", auto_network: true, :bridge => 'en0: Ethernet 1' 
+      #node.vm.network "public_network", auto_network: true
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -172,8 +172,8 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = machine[:hostname]
       #node.vm.network "private_network", auto_network: true
       # Specify the name of the network adapter to use with setting bridge.
-      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
-      node.vm.network "public_network", ip: machine[:ip], :netmask => "255.255.255.0"
+      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      #node.vm.network "public_network", ip: machine[:ip], :netmask => "255.255.255.0"
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
@@ -235,8 +235,8 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = machine[:hostname]
       #node.vm.network "private_network", auto_network: true
       # Specify the name of the network adapter to use with setting bridge.
-      #node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
-      node.vm.network "public_network", ip: machine[:ip], :netmask => "255.255.255.0"
+      node.vm.network "public_network", ip: machine[:ip], :bridge => 'en0: Ethernet 1', :netmask => "255.255.255.0"
+      #node.vm.network "public_network", ip: machine[:ip], :netmask => "255.255.255.0"
       node.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--memory', machine[:ram]]
         vb.customize ['modifyvm', :id, '--cpus', machine[:cpu]]
